@@ -6,8 +6,8 @@ namespace LanSweeper.Api.Test.IntegrationTests;
 public sealed class AuthenticationTests
 {
 	[Fact]
-	[Trait("Category", "Unit")]
-	public void Client_WithInvalidAccessToken_ShouldFailAuthentication()
+	[Trait("Category", "Integration")]
+	public async Task Client_WithInvalidAccessToken_ShouldFailAuthentication()
 	{
 		// Arrange
 		var options = new LanSweeperClientOptions
@@ -20,8 +20,9 @@ public sealed class AuthenticationTests
 		// Act
 		var act = async () => await client.Data.Sites.GetAllAsync(CancellationToken.None);
 
-		// Assert - This will fail with authentication error when actually calling the API
-		_ = act.Should().NotBeNull();
+		// Assert - Invalid token should fail with authentication error
+		_ = await act.Should().ThrowAsync<LanSweeperAuthenticationException>()
+			.WithMessage("*Authentication*");
 	}
 
 	[Fact]

@@ -1,42 +1,33 @@
-using LanSweeper.Api.Api;
-
-namespace LanSweeper.Api;
+namespace LanSweeper.Api.Api;
 
 /// <summary>
 /// Implementation of the Data API (GraphQL) for LanSweeper
 /// </summary>
-internal sealed class DataApi : IDataApi
+/// <remarks>
+/// Initializes a new instance of the <see cref="DataApi"/> class
+/// </remarks>
+/// <param name="graphQLClient">The GraphQL HTTP client</param>
+/// <param name="logger">Optional logger instance</param>
+internal sealed class DataApi(GraphQLHttpClient graphQLClient, ILogger? logger) : IDataApi
 {
-	/// <summary>
-	/// Initializes a new instance of the <see cref="DataApi"/> class
-	/// </summary>
-	/// <param name="graphQLClient">The GraphQL HTTP client</param>
-	/// <param name="logger">Optional logger instance</param>
-	public DataApi(GraphQLHttpClient graphQLClient, ILogger? logger)
-	{
-		Sites = new SitesApi(graphQLClient, logger);
-		Assets = new AssetsApi(graphQLClient, logger);
-		Reports = new ReportsApi(graphQLClient, logger);
-		Users = new UsersApi(graphQLClient, logger);
-	}
 
 	/// <summary>
 	/// Gets the Sites API for managing LanSweeper sites
 	/// </summary>
-	public ISitesApi Sites { get; }
+	public ISitesApi Sites { get; } = new SitesApi(graphQLClient, logger);
 
 	/// <summary>
 	/// Gets the Assets API for querying and managing IT assets
 	/// </summary>
-	public IAssetsApi Assets { get; }
+	public IAssetsApi Assets { get; } = new AssetsApi(graphQLClient, logger);
 
 	/// <summary>
 	/// Gets the Reports API for custom queries and reports
 	/// </summary>
-	public IReportsApi Reports { get; }
+	public IReportsApi Reports { get; } = new ReportsApi(graphQLClient, logger);
 
 	/// <summary>
 	/// Gets the Users API for user management
 	/// </summary>
-	public IUsersApi Users { get; }
+	public IUsersApi Users { get; } = new UsersApi(graphQLClient, logger);
 }

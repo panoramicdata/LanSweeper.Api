@@ -33,12 +33,26 @@ internal static class GraphQLQueries
 
 	/// <summary>
 	/// Query to get assets by site
+	/// NOTE: The 'fields' argument must specify the exact JSON paths to asset properties.
+	/// Common paths: "assetBasicInfo.name", "assetBasicInfo.ipAddress", "assetCustom.model", etc.
 	/// </summary>
 	public const string GetAssetsBySite = """
 		query GetAssetsBySite($siteId: ID!, $limit: Int!) {
 			site(id: $siteId) {
 				assetResources(
 					assetPagination: { limit: $limit }
+					fields: [
+						"assetBasicInfo.name",
+						"assetBasicInfo.type",
+						"assetBasicInfo.ipAddress",
+						"assetBasicInfo.mac",
+						"assetBasicInfo.firstSeen",
+						"assetBasicInfo.lastSeen",
+						"assetBasicInfo.domain",
+						"assetCustom.manufacturer",
+						"assetCustom.model",
+						"assetCustom.serialNumber"
+					]
 				) {
 					total
 					items

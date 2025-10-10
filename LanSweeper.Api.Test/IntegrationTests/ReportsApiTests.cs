@@ -39,7 +39,7 @@ public sealed class ReportsApiTests : IntegrationTestBase
 
 	[Fact]
 	[Trait("Category", "Integration")]
-	public async Task ExecuteQueryAsync_WithInvalidQuery_ShouldThrowGraphQLException()
+	public async Task ExecuteQueryAsync_WithInvalidQuery_ShouldThrowBadRequestException()
 	{
 		// Arrange - Invalid query syntax
 		var query = """
@@ -56,8 +56,8 @@ public sealed class ReportsApiTests : IntegrationTestBase
 			null,
 			CancellationToken);
 
-		// Assert
-		_ = await act.Should().ThrowAsync<LanSweeperGraphQLException>();
+		// Assert - API returns 400 Bad Request for invalid queries (before GraphQL processing)
+		_ = await act.Should().ThrowAsync<LanSweeperBadRequestException>();
 	}
 
 	[Fact]
