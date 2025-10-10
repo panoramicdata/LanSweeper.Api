@@ -1,6 +1,7 @@
 # LanSweeper.Api
 
-[![Nuget](https://img.shields.io/nuget/v/LanSweeper.Api)](https://www.nuget.org/packages/LanSweeper.Api/)
+[![Nuget](https://img.shields.io/nuget/v/PanoramicData.LanSweeper.Api)](https://www.nuget.org/packages/PanoramicData.LanSweeper.Api/)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/aaf15ba41ae648488d03d1128e24ff97)](https://app.codacy.com/gh/panoramicdata/LanSweeper.Api/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 A comprehensive .NET library for the LanSweeper Data API (GraphQL), providing easy access to LanSweeper's inventory and asset management data.
