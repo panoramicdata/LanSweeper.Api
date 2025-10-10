@@ -1,0 +1,1261 @@
+{
+	"info": {
+		"_postman_id": "cd844975-0880-414a-b8d1-673fe184a8ad",
+		"name": "Platform API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "679045",
+		"_collection_link": "https://www.postman.com/lansweeper/lansweeper-s-public-workspace/collection/4ksu39b/platform-api?action=share&source=collection_link&creator=679045"
+	},
+	"item": [
+		{
+			"name": "Authorization",
+			"item": [
+				{
+					"name": "Org Authorization",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const dataBody = pm.response.json();    \r",
+									"\r",
+									"pm.test(\"Response is ok\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"There is a token retrieved\", function () {\r",
+									"    pm.response.to.have.jsonBody(\"access_token\");\r",
+									"    pm.environment.set(\"orgAccessToken\", dataBody.access_token);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Token scopes are correct\", function () {\r",
+									"    pm.response.to.have.jsonBody(\"scope\");\r",
+									"    pm.expect(dataBody.scope).to.include(\"id\");\r",
+									"    pm.expect(dataBody.scope).to.include(\"name\");\r",
+									"    pm.expect(dataBody.scope).to.include(\"createOrgSite\");\r",
+									"    pm.expect(dataBody.scope).to.include(\"deleteOrgSite\");\r",
+									"    pm.expect(dataBody.scope).to.include(\"rotateOrgSiteCredentials\");\r",
+									"    pm.expect(dataBody.scope).to.include(\"rotateOrganizationCredentials\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "",
+								"value": "",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"grant_type\": \"client_credentials\",\r\n    \"client_id\":\"{{orgClientId}}\" ,\r\n    \"client_secret\":\"{{orgClientSecret}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{endpoint}}/oauth/token",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"oauth",
+								"token"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Org Site Authorization",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const dataBody = pm.response.json();    \r",
+									"\r",
+									"pm.test(\"Response is ok\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"There is a token retrieved\", function () {\r",
+									"    pm.response.to.have.jsonBody(\"access_token\");\r",
+									"    pm.environment.set(\"siteAccessToken\", dataBody.access_token);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Token scopes are correct\", function () {\r",
+									"    pm.response.to.have.jsonBody(\"scope\");\r",
+									"    pm.expect(dataBody.scope).to.include(\"id\");\r",
+									"    pm.expect(dataBody.scope).to.include(\"name\");\r",
+									"    pm.expect(dataBody.scope).to.include(\"source\");\r",
+									"    pm.expect(dataBody.scope).to.include(\"sources\");\r",
+									"    pm.expect(dataBody.scope).to.include(\"scannow\");\r",
+									"    pm.expect(dataBody.scope).to.include(\"linkingCode\");\r",
+									"    pm.expect(dataBody.scope).to.include(\"unlink\");\r",
+									"    pm.expect(dataBody.scope).to.include(\"assetResources\");\r",
+									"    pm.expect(dataBody.scope).to.include(\"assetDetails\");\r",
+									"    pm.expect(dataBody.scope).to.include(\"deleteAssets\");\r",
+									"    pm.expect(dataBody.scope).to.include(\"reportExecutionResults\");\r",
+									"    pm.expect(dataBody.scope).to.include(\"reportFullExport\");\r",
+									"    pm.expect(dataBody.scope).to.include(\"reportFullExportStatus\");\r",
+									"    pm.expect(dataBody.scope).to.include(\"reports\");\r",
+									"    pm.expect(dataBody.scope).to.include(\"reportSetSchedule\");\r",
+									"    pm.expect(dataBody.scope).to.include(\"scanningTask\");\r",
+									"    pm.expect(dataBody.scope).to.include(\"createScanningTask\");\r",
+									"    pm.expect(dataBody.scope).to.include(\"updateScanningTask\");\r",
+									"    pm.expect(dataBody.scope).to.include(\"scanningTasks\");\r",
+									"    pm.expect(dataBody.scope).to.include(\"scanningGroup\");\r",
+									"    pm.expect(dataBody.scope).to.include(\"createScanningGroup\");\r",
+									"    pm.expect(dataBody.scope).to.include(\"updateScanningGroup\");\r",
+									"    pm.expect(dataBody.scope).to.include(\"scanningGroups\");\r",
+									"    pm.expect(dataBody.scope).to.include(\"discoveryComponents\");\r",
+									"    pm.expect(dataBody.scope).to.include(\"updateDiscoveryComponent\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "",
+								"value": "",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"grant_type\": \"client_credentials\",\r\n    \"client_id\":\"{{orgSiteClientId}}\" ,\r\n    \"client_secret\":\"{{orgSiteClientSecret}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{endpoint}}/oauth/token",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"oauth",
+								"token"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Rotate Org Credentials",
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {}
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{orgAccessToken}}"
+							}
+						],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "mutation organizationCredentials ($organizationId: ID!) {\r\n  organization(id: $organizationId) {\r\n    rotateOrganizationCredentials {\r\n\t\tclientId\r\n\t\tclientSecret\r\n\t}\r\n  }\r\n}",
+								"variables": "{\r\n    \"organizationId\": \"{{org-id}}\"\r\n}"
+							}
+						},
+						"url": {
+							"raw": "{{endpoint}}/graphql",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"graphql"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Rotate Org Site Credentials",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response is ok\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{orgAccessToken}}"
+							}
+						],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "mutation credentials ($organizationId: ID!, $siteId: ID!) {\r\n  organization(id: $organizationId) {\r\n    rotateOrgSiteCredentials(id: $siteId) {\r\n\t\tclientId\r\n\t\tclientSecret\r\n\t}\r\n  }\r\n}",
+								"variables": "{\r\n    \"organizationId\": \"{{org-id}}\",\r\n    \"siteId\": \"{{org-site1-id}}\"\r\n}"
+							}
+						},
+						"url": {
+							"raw": "{{endpoint}}/graphql",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"graphql"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Organization",
+			"item": [
+				{
+					"name": "Bulk export",
+					"item": [
+						{
+							"name": "Export request",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "graphql",
+									"graphql": {
+										"query": "mutation export {\r\n  site(id: \"{{site_id}}\") {\r\n    exportFilteredAssets {\r\n      assetBasicInfo {\r\n        name\r\n        type\r\n        description\r\n        lastSeen\r\n      }\r\n      baseboards {\r\n        manufacturer\r\n        serialNumber\r\n        type\r\n      }\r\n      cdromDrives {\r\n        drive\r\n        burnSupport\r\n      }\r\n      graphicsCards {\r\n        manufacturer\r\n        currentBitsPerPixel\r\n        driverVersion\r\n      }\r\n      networks {\r\n        ipAddressV4\r\n        macAddress\r\n        configuration {\r\n          name\r\n          state\r\n        }\r\n      }\r\n      exportId\r\n    }\r\n  }\r\n}",
+										"variables": ""
+									}
+								},
+								"url": {
+									"raw": "{{graphql_endpoint}}",
+									"host": [
+										"{{graphql_endpoint}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Check export",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "graphql",
+									"graphql": {
+										"query": "{\r\n  site(id: \"{{site_id}}\") {\r\n    exportStatus(exportId: \"{{export_id}}\") {\r\n      exportId\r\n      progress\r\n      url\r\n    }\r\n  }\r\n}\r\n",
+										"variables": ""
+									}
+								},
+								"url": {
+									"raw": "{{graphql_endpoint}}",
+									"host": [
+										"{{graphql_endpoint}}"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Create Org Site",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const dataBody = pm.response.json();    ",
+									"",
+									"pm.test(\"Response is ok\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"The organization site is created\", function () {",
+									"    pm.response.to.have.jsonBody(\"data.organization.createOrgSite\");",
+									"    pm.environment.set(\"orgSiteId\", dataBody.data.organization.createOrgSite.id);",
+									"    pm.environment.set(\"orgSiteClientId\", dataBody.data.organization.createOrgSite.clientId);",
+									"    pm.environment.set(\"orgSiteClientSecret\", dataBody.data.organization.createOrgSite.clientSecret);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {}
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{orgAccessToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "mutation createOrgSite($organizationId: ID!)  {\r\n    organization(id: $organizationId) {\r\n\t\tcreateOrgSite {\r\n\t\t\tid\r\n\t\t\tclientId\r\n\t\t\tclientSecret\r\n\t\t}\r\n\t}\r\n}",
+								"variables": "{\r\n    \"organizationId\": \"{{orgId}}\"\r\n}"
+							}
+						},
+						"url": {
+							"raw": "{{endpoint}}/graphql",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"graphql"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Org Site",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response is ok\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"/*\r",
+									"pm.environment.unset(\"orgAccessToken\");\r",
+									"pm.environment.unset(\"orgSiteId\");\r",
+									"pm.environment.unset(\"orgSiteClientId\");\r",
+									"pm.environment.unset(\"orgSiteClientSecret\");\r",
+									"pm.environment.unset(\"siteAccessToken\");\r",
+									"pm.environment.unset(\"orgSiteLinkingCode\");\r",
+									"*/"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{orgAccessToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "mutation deleteOrgSite($organizationId: ID!, $siteId: ID!)  {\r\n\torganization(id: $organizationId) {\r\n\t\tdeleteOrgSite(id: $siteId)\r\n\t}\r\n}",
+								"variables": "{\r\n    \"organizationId\": \"{{orgId}}\",\r\n    \"siteId\": \"{{orgSiteId}}\"\r\n}"
+							}
+						},
+						"url": {
+							"raw": "{{endpoint}}/graphql",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"graphql"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Site",
+			"item": [
+				{
+					"name": "Assets",
+					"item": [
+						{
+							"name": "Asset Resources",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "graphql",
+									"graphql": {
+										"query": "{ \r\n  orgSite(id: \"{{site_id}}\"){\r\n    assetResources(\r\n      assetPagination: {\r\n        limit: 100,\r\n        page: FIRST\r\n      },\r\n      fields: [ \r\n        \"assetBasicInfo.name\",\r\n        \"assetBasicInfo.type\",\r\n        \"softwares.name\"\r\n        \"softwares.version\",\r\n        \"url\"\r\n      ],\r\n    ) {\r\n      total\r\n      pagination {\r\n        limit\r\n        current\r\n        next\r\n        page \r\n      }\r\n      items\r\n    }\r\n  }\r\n}",
+										"variables": ""
+									}
+								},
+								"url": {
+									"raw": "{{graphql_endpoint}}",
+									"host": [
+										"{{graphql_endpoint}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Asset Resources with filter",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "graphql",
+									"graphql": {
+										"query": "{ \r\n  orgSite(id: \"{{site_id}}\"){\r\n    assetResources(\r\n      assetPagination: {\r\n        limit: 100,\r\n        page: FIRST\r\n      },\r\n      fields: [ \r\n        \"assetBasicInfo.name\",\r\n        \"assetBasicInfo.type\",\r\n        \"url\"\r\n      ],\r\n      filters: {\r\n        conjunction: AND,\r\n        conditions: [\r\n          {\r\n            operator: LIKE,\r\n            path: \"assetBasicInfo.type\",\r\n            value: \"Printer\"\r\n          }\r\n        ]\r\n      }\r\n    ) {\r\n      total\r\n      pagination {\r\n        limit\r\n        current\r\n        next\r\n        page \r\n      }\r\n      items\r\n    }\r\n  }\r\n}",
+										"variables": ""
+									}
+								},
+								"url": {
+									"raw": "{{graphql_endpoint}}",
+									"host": [
+										"{{graphql_endpoint}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Asset Resources with variables",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "graphql",
+									"graphql": {
+										"query": "query assetResources($siteId: ID!, $pagination: AssetsPaginationInputValidated){ \r\n  orgSite(id: $siteId){\r\n    assetResources(\r\n      assetPagination: $pagination,\r\n      fields: [\r\n        \"assetBasicInfo.name\",\r\n        \"assetCustom.manufacturer\",\r\n        \"url\"\r\n      ],\r\n    ) {\r\n      total\r\n      pagination {\r\n        limit\r\n        current\r\n        next\r\n        page \r\n      }\r\n      items\r\n    }\r\n  }\r\n}",
+										"variables": "{\r\n\t\"siteId\": \"{{site_id}}\",\r\n\t\"pagination\": {\r\n\t\t\"limit\": 500,\r\n\t\t\"page\": \"FIRST\"\r\n\t}\r\n}"
+									}
+								},
+								"url": {
+									"raw": "{{graphql_endpoint}}",
+									"host": [
+										"{{graphql_endpoint}}"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Software",
+					"item": [
+						{
+							"name": "Paginated software",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "graphql",
+									"graphql": {
+										"query": "{\r\n  orgSite(id: \"{{site_id}}\") {\r\n    softwareListWithCursor\r\n    ( softwarePagination: \r\n      { page: next,\r\n        limit: 5,\r\n        cursor: [\r\n            {\r\n                fieldName: \"software\",\r\n                fieldValue: \"\"\r\n            },\r\n            {\r\n                fieldName: \"publisher\",\r\n                fieldValue: \"\"\r\n            }\r\n        ],\r\n        order:\r\n          {\r\n            field: \"software\",\r\n            direction: ASC\r\n          }\r\n      }\r\n    ) \r\n    {\r\n      total\r\n      limit\r\n      order {\r\n        direction\r\n        field\r\n      }\r\n      current {\r\n        fieldName\r\n        fieldValue\r\n      }\r\n      next {\r\n        fieldName\r\n        fieldValue\r\n      }\r\n      items {\r\n        software\r\n        publisher\r\n        operatingSystems\r\n        versions\r\n        relatedSoftwareNames\r\n        release {\r\n          release\r\n          version\r\n        }\r\n        operatingSystems\r\n        assets\r\n        installDate\r\n        labeledSoftware\r\n        labeledPublisher\r\n        iconSoftware\r\n        iconPublisher\r\n      }\r\n    }\r\n  }\r\n}",
+										"variables": ""
+									}
+								},
+								"url": {
+									"raw": "{{graphql_endpoint}}",
+									"host": [
+										"{{graphql_endpoint}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Paginated software with filter",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "graphql",
+									"graphql": {
+										"query": "{\r\n  orgSite(id: \"{{site_id}}\") {\r\n    softwareListWithCursor\r\n    ( softwarePagination: \r\n      { page: next,\r\n        limit: 3,\r\n        cursor: [\r\n            {\r\n                fieldName: \"software\",\r\n                fieldValue: \"\"\r\n            },\r\n            {\r\n                fieldName: \"publisher\",\r\n                fieldValue: \"\"\r\n            }\r\n        ],\r\n        order: \r\n          {\r\n            field: \"software\",\r\n            direction: ASC\r\n          }\r\n      },\r\n      filter: [{ fields: [\"software\"],\r\n                 value: \"win\",\r\n                 type: searchPhrase }]\r\n    ) \r\n    {\r\n      total\r\n      limit\r\n      order {\r\n        direction\r\n        field\r\n      }\r\n      current {\r\n        fieldName\r\n        fieldValue\r\n      }\r\n      next {\r\n        fieldName\r\n        fieldValue\r\n      }\r\n      items {\r\n        software\r\n        publisher\r\n        operatingSystems\r\n        versions\r\n        relatedSoftwareNames\r\n        release {\r\n          release\r\n          version\r\n        }\r\n        operatingSystems\r\n        assets\r\n        installDate\r\n        labeledSoftware\r\n        labeledPublisher\r\n        iconSoftware\r\n        iconPublisher\r\n      }\r\n    }\r\n  }\r\n}",
+										"variables": ""
+									}
+								},
+								"url": {
+									"raw": "{{graphql_endpoint}}",
+									"host": [
+										"{{graphql_endpoint}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Paginated software with variables",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "graphql",
+									"graphql": {
+										"query": "query softwareListWithCursor($site_id: ID!, $pagination: SoftwareAggregatedPaginatedCursorInput){\r\n  orgSite(id: $site_id) {\r\n    softwareListWithCursor\r\n    ( softwarePagination: $pagination ) \r\n    {\r\n      total\r\n      limit\r\n      order {\r\n        direction\r\n        field\r\n      }\r\n      current {\r\n        fieldName\r\n        fieldValue\r\n      }\r\n      next {\r\n        fieldName\r\n        fieldValue\r\n      }\r\n      items {\r\n        software\r\n        publisher\r\n        operatingSystems\r\n        versions\r\n        relatedSoftwareNames\r\n        release {\r\n          release\r\n          version\r\n        }\r\n        operatingSystems\r\n        assets\r\n        installDate\r\n        labeledSoftware\r\n        labeledPublisher\r\n        iconSoftware\r\n        iconPublisher\r\n      }\r\n    }\r\n  }\r\n}",
+										"variables": "{\r\n    \"site_id\": \"{{site_id}}\",\r\n    \"pagination\": { \"page\": \"next\",\r\n        \"limit\": 500,\r\n        \"cursor\": [\r\n            {\r\n                \"fieldName\": \"software\",\r\n                \"fieldValue\": \"\"\r\n            },\r\n            {\r\n                \"fieldName\": \"publisher\",\r\n                \"fieldValue\": \"\"\r\n            }\r\n        ],\r\n        \"order\": \r\n          {\r\n            \"field\": \"software\",\r\n            \"direction\": \"ASC\"\r\n          }\r\n      }\r\n}"
+									}
+								},
+								"url": {
+									"raw": "{{graphql_endpoint}}",
+									"host": [
+										"{{graphql_endpoint}}"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Scanning",
+					"item": [
+						{
+							"name": "Get Org Site Linking Code",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"const dataBody = pm.response.json();    ",
+											"",
+											"pm.test(\"Response is ok\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"The organization site is created\", function () {",
+											"    pm.response.to.have.jsonBody(\"data.orgSite.linkingCode\");",
+											"    pm.environment.set(\"orgSiteLinkingCode\", dataBody.data.orgSite.linkingCode);",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {}
+							},
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{siteAccessToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "graphql",
+									"graphql": {
+										"query": "mutation getLinkingCode($siteId: ID!) {\r\n\torgSite(id: $siteId) {\r\n\t\tlinkingCode\r\n\t}\r\n}\r\n",
+										"variables": "{\r\n    \"siteId\": \"{{orgSiteId}}\"\r\n}"
+									}
+								},
+								"url": {
+									"raw": "{{endpoint}}/graphql",
+									"host": [
+										"{{endpoint}}"
+									],
+									"path": [
+										"graphql"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get all sources",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response is ok\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {}
+							},
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{siteAccessToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "graphql",
+									"graphql": {
+										"query": "query listSources($siteId: ID!) {\r\n\torgSite(id: $siteId) {\r\n\t\tsources(\r\n\t\t\tpagination: { limit: 500, page: FIRST, cursor: \"XXX\" }\r\n\t\t) {\r\n\t\t\ttotal\r\n\t\t\tpagination {\r\n\t\t\t\tlimit\r\n\t\t\t\tcurrent\r\n\t\t\t\tnext\r\n\t\t\t\tpage\r\n\t\t\t}\r\n\t\t\titems {\r\n\t\t\t\tid\r\n\t\t\t\tstate {\r\n\t\t\t\t\tvalue\r\n\t\t\t\t\tunlinkedOnDate\r\n\t\t\t\t\tdeletedOnDate\r\n\t\t\t\t\tfirstSyncCompletedOn\r\n\t\t\t\t}\r\n\t\t\t\tcreatedAt\r\n\t\t\t\texternalId\r\n\t\t\t\tdiscoveryComponents {\r\n\t\t\t\t\tid\r\n\t\t\t\t\tscanningTasks {\r\n\t\t\t\t\t\tid\r\n\t\t\t\t\t\ttriggers\r\n\t\t\t\t\t\tisDefault\r\n\t\t\t\t\t}\r\n\t\t\t\t\tscanningGroup {\r\n\t\t\t\t\t\tid\r\n\t\t\t\t\t\tmaintenanceWindow\r\n\t\t\t\t\t\tnetworkVisibility {\r\n\t\t\t\t\t\t\tenabled\r\n\t\t\t\t\t\t}\r\n\t\t\t\t\t\tisDefault\r\n\t\t\t\t\t}\r\n\t\t\t\t}\r\n\t\t\t}\r\n\t\t}\r\n\t}\r\n}\r\n",
+										"variables": "{\r\n    \"siteId\": \"{{orgSiteId}}\"\r\n}"
+									}
+								},
+								"url": {
+									"raw": "{{endpoint}}/graphql",
+									"host": [
+										"{{endpoint}}"
+									],
+									"path": [
+										"graphql"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get filtered sources",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response is ok\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {}
+							},
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{siteAccessToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "graphql",
+									"graphql": {
+										"query": "query listSources($siteId: ID!) {\r\n\torgSite(id: $siteId) {\r\n\t\tsources(\r\n\t\t\tpagination: { limit: 500, page: FIRST, cursor: \"XXX\" }\r\n\t\t\tfilters: {\r\n\t\t\t\tconjunction: AND\r\n\t\t\t\tgroups: [\r\n\t\t\t\t\t{\r\n\t\t\t\t\t\tconditions: [\r\n\t\t\t\t\t\t\t{ operator: EXISTS, path: \"id\", value: \"true\" },\r\n\t\t\t\t\t\t\t{ operator: EQUAL, path: \"state.value\", value: \"UNSYNC\" }\r\n\t\t\t\t\t\t\t{ operator: EXISTS, path: \"externalId\", value: \"false\" }\r\n\t\t\t\t\t\t\t{ operator: NOT_EQUAL, path: \"state.value\", value: \"SYNC\" }\r\n\t\t\t\t\t\t]\r\n\t\t\t\t\t\tconjunction: AND\r\n\t\t\t\t\t}\r\n\t\t\t\t]\r\n\t\t\t}\r\n\t\t) {\r\n\t\t\ttotal\r\n\t\t\tpagination {\r\n\t\t\t\tlimit\r\n\t\t\t\tcurrent\r\n\t\t\t\tnext\r\n\t\t\t\tpage\r\n\t\t\t}\r\n\t\t\titems {\r\n\t\t\t\tid\r\n\t\t\t\tstate {\r\n\t\t\t\t\tvalue\r\n\t\t\t\t\tunlinkedOnDate\r\n\t\t\t\t\tdeletedOnDate\r\n\t\t\t\t\tfirstSyncCompletedOn\r\n\t\t\t\t}\r\n\t\t\t\tcreatedAt\r\n\t\t\t\texternalId\r\n\t\t\t\tdiscoveryComponents {\r\n\t\t\t\t\tid\r\n\t\t\t\t\tscanningTasks {\r\n\t\t\t\t\t\tid\r\n\t\t\t\t\t\ttriggers\r\n\t\t\t\t\t\tisDefault\r\n\t\t\t\t\t}\r\n\t\t\t\t\tscanningGroup {\r\n\t\t\t\t\t\tid\r\n\t\t\t\t\t\tmaintenanceWindow\r\n\t\t\t\t\t\tnetworkVisibility {\r\n\t\t\t\t\t\t\tenabled\r\n\t\t\t\t\t\t}\r\n\t\t\t\t\t\tisDefault\r\n\t\t\t\t\t}\r\n\t\t\t\t}\r\n\t\t\t}\r\n\t\t}\r\n\t}\r\n}\r\n",
+										"variables": "{\r\n    \"siteId\": \"{{orgSiteId}}\"\r\n}"
+									}
+								},
+								"url": {
+									"raw": "{{endpoint}}/graphql",
+									"host": [
+										"{{endpoint}}"
+									],
+									"path": [
+										"graphql"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update discovery component",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response is ok\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {}
+							},
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{siteAccessToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "graphql",
+									"graphql": {
+										"query": "mutation updateDiscoveryComponent($siteId: ID!, $sourceId: ID!, $discoveryComponentId: ID! $scanningGroupId: ID!){\r\n  orgSite(id: $siteId) {\r\n    source(id: $sourceId) {\r\n      updateDiscoveryComponent(discoveryComponentId: $discoveryComponentId, scanningGroupId: $scanningGroupId) {\r\n        id\r\n        scanningTasks {\r\n          id\r\n          triggers\r\n          isDefault\r\n        }\r\n        scanningGroup {\r\n          id\r\n          maintenanceWindow\r\n          networkVisibility {\r\n            enabled\r\n          }\r\n          isDefault\r\n        }\r\n      }\r\n    }\r\n  }\r\n}",
+										"variables": "{\r\n    \"siteId\": \"{{orgSiteId}}\",\r\n    \"sourceId\": \"0bec0e9e-722e-46c2-9f28-18999d05f0a6\",\r\n    \"discoveryComponentId\": \"0bec0e9e-722e-46c2-9f28-18999d05f0a6\",\r\n    \"scanningGroupId\": \"0f7ae75a-44e2-4020-9527-466c04d65e2c\"\r\n}"
+									}
+								},
+								"url": {
+									"raw": "{{endpoint}}/graphql",
+									"host": [
+										"{{endpoint}}"
+									],
+									"path": [
+										"graphql"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create new scanning group",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response is ok\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {}
+							},
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{siteAccessToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "graphql",
+									"graphql": {
+										"query": "\r\n\r\nmutation createScanningGroup($siteId: ID!, $scanningGroup: ScanningGroupInput){\r\n  orgSite(id: $siteId) {\r\n    createScanningGroup(scanningGroup: $scanningGroup) {\r\n       id\r\n       maintenanceWindow \r\n       networkVisibility {\r\n        enabled\r\n       }\r\n       isDefault\r\n    }\r\n  }\r\n}",
+										"variables": "{\r\n    \"siteId\": \"{{orgSiteId}}\",\r\n    \"scanningGroup\": {\r\n        \"networkVisibility\": {\r\n            \"enabled\": true\r\n        },\r\n        \"maintenanceWindow\":{\r\n            \"fromHour\":1,\r\n            \"toHour\":2\r\n        }\r\n    }\r\n}"
+									}
+								},
+								"url": {
+									"raw": "{{endpoint}}/graphql",
+									"host": [
+										"{{endpoint}}"
+									],
+									"path": [
+										"graphql"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get all scanning groups",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response is ok\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {}
+							},
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{siteAccessToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "graphql",
+									"graphql": {
+										"query": "query scanningGroups($siteId: ID!){\r\n  orgSite(id: $siteId) {\r\n    scanningGroups {\r\n       id\r\n       maintenanceWindow \r\n       networkVisibility {\r\n        enabled\r\n       }\r\n       isDefault\r\n    }\r\n  }\r\n}",
+										"variables": "{\r\n    \"siteId\": \"{{orgSiteId}}\"\r\n}"
+									}
+								},
+								"url": {
+									"raw": "{{endpoint}}/graphql",
+									"host": [
+										"{{endpoint}}"
+									],
+									"path": [
+										"graphql"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create scanning tasks",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response is ok\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {}
+							},
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{siteAccessToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "graphql",
+									"graphql": {
+										"query": "\r\nmutation createScanningTask($siteId: ID!, $scanningTask: ScanningTaskInput){\r\n  orgSite(id: $siteId) {\r\n    createScanningTask(scanningTask: $scanningTask) {\r\n       id\r\n       triggers \r\n       isDefault\r\n       actions {\r\n         components\r\n       }\r\n    }\r\n  }\r\n}",
+										"variables": "{\r\n    \"siteId\": \"{{orgSiteId}}\",\r\n    \"scanningTask\":{\r\n        \"triggers\": [\"27 11 * * *\"],\r\n        \"actions\":{\r\n            \"components\": [\"0f7ae75a-44e2-4020-9527-466c04d65e2c\"]\r\n        }\r\n    }\r\n}"
+									}
+								},
+								"url": {
+									"raw": "{{endpoint}}/graphql",
+									"host": [
+										"{{endpoint}}"
+									],
+									"path": [
+										"graphql"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get all scanning tasks",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response is ok\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {}
+							},
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{siteAccessToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "graphql",
+									"graphql": {
+										"query": "query scanningTasks($siteId: ID!){\r\n  orgSite(id: $siteId) {\r\n    scanningTasks {\r\n      id\r\n      triggers \r\n      isDefault\r\n      actions {\r\n        components\r\n      }  \r\n    }\r\n  }\r\n}",
+										"variables": "{\r\n    \"siteId\": \"{{orgSiteId}}\"\r\n}"
+									}
+								},
+								"url": {
+									"raw": "{{endpoint}}/graphql",
+									"host": [
+										"{{endpoint}}"
+									],
+									"path": [
+										"graphql"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Scan now",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response is ok\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {}
+							},
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{siteAccessToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "graphql",
+									"graphql": {
+										"query": "mutation scanNow($siteId: ID!, $sourceId: ID!){\r\n  orgSite(id: $siteId) {\r\n    source(id: $sourceId) {\r\n      scanNow\r\n    }\r\n  }\r\n}",
+										"variables": "{\r\n    \"siteId\": \"{{orgSiteId}}\",\r\n    \"sourceId\": \"{{sourceId}}\"\r\n}"
+									}
+								},
+								"url": {
+									"raw": "{{endpoint}}/graphql",
+									"host": [
+										"{{endpoint}}"
+									],
+									"path": [
+										"graphql"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Unlink",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response is ok\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{org-site1-access-token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "graphql",
+									"graphql": {
+										"query": "mutation unlink($siteId: ID!) {\r\n\torgSite(id: $siteId) {\r\n\t\tunlink(sourceIds: [\"{{source-id}}\"]) \r\n\t}\r\n}",
+										"variables": "{\r\n    \"siteId\": \"{{orgSiteId}}\"\r\n}"
+									}
+								},
+								"url": {
+									"raw": "{{endpoint}}/graphql",
+									"host": [
+										"{{endpoint}}"
+									],
+									"path": [
+										"graphql"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create discovery credential",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response is ok\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {}
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{org-site1-access-token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "graphql",
+									"graphql": {
+										"query": "mutation createCredential($siteId: ID!, $credential: DiscoveryCredentialInput!){\r\n  orgSite(id: $siteId) {\r\n    createDiscoveryCredential(credential: $credential) {\r\n      id\r\n      name\r\n      default\r\n      types\r\n      parameters {\r\n        login\r\n      }\r\n      discoveryComponentIds\r\n    }\r\n  }\r\n}",
+										"variables": "{\r\n    \"siteId\": \"{{org-site1-id}}\",\r\n    \"credential\": {\r\n        \"name\": \"My credential\",\r\n        \"default\": false,\r\n        \"types\":[\"Windows\"],\r\n        \"cipherCredentials\": {\r\n            \"discoveryComponentId\": \"{{source-id}}\",\r\n            \"key\": \"{{encrypted-key}}\",\r\n            \"message\": \"{{encrypted-message}}\",\r\n            \"nonce\": \"{{encrypted-nonce}}\",\r\n            \"tag\": \"{{encrypted-tag}}\"\r\n        },\r\n        \"parameters\": {\r\n            \"login\": \"{{user-login}}\"\r\n        }\r\n    }\r\n}"
+									}
+								},
+								"url": {
+									"raw": "{{endpoint}}/graphql",
+									"host": [
+										"{{endpoint}}"
+									],
+									"path": [
+										"graphql"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete discovery credential",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response is ok\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {}
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{org-site1-access-token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "graphql",
+									"graphql": {
+										"query": "mutation deleteCredential($siteId: ID!, $discoveryCredentialId: ID!){\r\n  orgSite(id: $siteId) {\r\n    deleteDiscoveryCredential(id: $discoveryCredentialId)\r\n  }\r\n}",
+										"variables": "{\r\n    \"siteId\": \"{{org-site1-id}}\",\r\n    \"discoveryCredentialId\": \"{{credential-id}}\"\r\n}"
+									}
+								},
+								"url": {
+									"raw": "{{endpoint}}/graphql",
+									"host": [
+										"{{endpoint}}"
+									],
+									"path": [
+										"graphql"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Bulk export",
+					"item": [
+						{
+							"name": "Export request",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "graphql",
+									"graphql": {
+										"query": "mutation export {\r\n  orgSite(id: \"{{site_id}}\") {\r\n    exportFilteredAssets {\r\n      assetBasicInfo {\r\n        name\r\n        type\r\n        description\r\n        lastSeen\r\n      }\r\n      baseboards {\r\n        manufacturer\r\n        serialNumber\r\n        type\r\n      }\r\n      cdromDrives {\r\n        drive\r\n        burnSupport\r\n      }\r\n      graphicsCards {\r\n        manufacturer\r\n        currentBitsPerPixel\r\n        driverVersion\r\n      }\r\n      networks {\r\n        ipAddressV4\r\n        macAddress\r\n        configuration {\r\n          name\r\n          state\r\n        }\r\n      }\r\n      exportId\r\n    }\r\n  }\r\n}",
+										"variables": ""
+									}
+								},
+								"url": {
+									"raw": "{{graphql_endpoint}}",
+									"host": [
+										"{{graphql_endpoint}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Check export",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "graphql",
+									"graphql": {
+										"query": "{\r\n  orgSite(id: \"{{site_id}}\") {\r\n    exportStatus(exportId: \"{{export_id}}\") {\r\n      exportId\r\n      progress\r\n      url\r\n    }\r\n  }\r\n}\r\n",
+										"variables": ""
+									}
+								},
+								"url": {
+									"raw": "{{graphql_endpoint}}",
+									"host": [
+										"{{graphql_endpoint}}"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Custom fields",
+					"item": [
+						{
+							"name": "Get org site's custom fields",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "graphql",
+									"graphql": {
+										"query": "query getCustomFields($siteId: ID!){\r\n    orgSite(id: $siteId) {\r\n        customFields {\r\n            name\r\n            type\r\n            key\r\n            props {\r\n                currencyType\r\n                options\r\n                linkTag\r\n                minNumericValue\r\n                maxNumericValue\r\n            }\r\n        }\r\n    }\r\n}\r\n\r\n\r\n\r\n",
+										"variables": "{\n    \"siteId\": \"{{site_id}}\"\n}"
+									}
+								},
+								"url": {
+									"raw": "{{graphql_endpoint}}",
+									"host": [
+										"{{graphql_endpoint}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create org site's custom fields",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "graphql",
+									"graphql": {
+										"query": "mutation customFieldCreation ($siteId: ID!, $field: CustomFieldInput!){\r\n    orgSite(id: $siteId) {\r\n        createCustomField(field: $field) {\r\n        name\r\n        type\r\n        key\r\n        props {\r\n            currencyType\r\n            options\r\n            linkTag\r\n            minNumericValue\r\n            maxNumericValue\r\n            }\r\n        }\r\n    }\r\n}",
+										"variables": "{\n\t\"siteId\": \"{{site_id}}\",\n    \"field\": {\n\t\t\"name\": \"Custom field name\",\n\t\t\"type\": \"NUMERIC\",\n\t\t\"props\": {\n\t\t\t\"minNumericValue\": 13,\n\t\t\t\"maxNumericValue\": 14\n\t\t}\n\t}\n}"
+									}
+								},
+								"url": {
+									"raw": "{{graphql_endpoint}}",
+									"host": [
+										"{{graphql_endpoint}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete org site's custom fields",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "graphql",
+									"graphql": {
+										"query": "mutation deleteCustomField ($siteId: ID!, $key: ID!){\r\n    orgSite(id: $siteId) {\r\n        deleteCustomField(key: $key)\r\n    }\r\n}\r\n",
+										"variables": "{\n    \"siteId\": \"{{site_id}}\",\n    \"key\": \"{{custom_field_key}}\"\n}"
+									}
+								},
+								"url": {
+									"raw": "{{graphql_endpoint}}",
+									"host": [
+										"{{graphql_endpoint}}"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}
