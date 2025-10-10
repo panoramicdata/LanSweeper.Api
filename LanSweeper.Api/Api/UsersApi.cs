@@ -11,7 +11,7 @@ internal sealed class UsersApi(GraphQLHttpClient client, ILogger? logger) : IUse
 	/// <summary>
 	/// Gets the current authenticated user's information
 	/// </summary>
-	public async Task<User> GetCurrentAsync(CancellationToken cancellationToken = default)
+	public async Task<User> GetCurrentAsync(CancellationToken cancellationToken)
 	{
 		_logger?.LogDebug("Getting current user information");
 

@@ -13,8 +13,8 @@ internal sealed class ReportsApi(GraphQLHttpClient client, ILogger? logger) : IR
 	/// </summary>
 	public async Task<T> ExecuteQueryAsync<T>(
 		string query,
-		Dictionary<string, object>? variables = null,
-		CancellationToken cancellationToken = default)
+		Dictionary<string, object>? variables,
+		CancellationToken cancellationToken)
 	{
 		ArgumentException.ThrowIfNullOrWhiteSpace(query);
 

@@ -18,7 +18,7 @@ public sealed class AuthenticationTests
 		using var client = new LanSweeperClient(options);
 
 		// Act
-		var act = async () => await client.Data.Sites.GetAllAsync();
+		var act = async () => await client.Data.Sites.GetAllAsync(CancellationToken.None);
 
 		// Assert - This will fail with authentication error when actually calling the API
 		_ = act.Should().NotBeNull();

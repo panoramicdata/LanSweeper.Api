@@ -10,5 +10,5 @@ public interface IUsersApi
 	/// </summary>
 	/// <param name="cancellationToken">Cancellation token</param>
 	/// <returns>The current user's information</returns>
-	Task<User> GetCurrentAsync(CancellationToken cancellationToken = default);
+	Task<User> GetCurrentAsync(CancellationToken cancellationToken);
 }

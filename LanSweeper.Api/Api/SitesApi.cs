@@ -11,7 +11,7 @@ internal sealed class SitesApi(GraphQLHttpClient client, ILogger? logger) : ISit
 	/// <summary>
 	/// Gets all authorized sites
 	/// </summary>
-	public async Task<IReadOnlyList<Site>> GetAllAsync(CancellationToken cancellationToken = default)
+	public async Task<IReadOnlyList<Site>> GetAllAsync(CancellationToken cancellationToken)
 	{
 		_logger?.LogDebug("Getting all authorized sites");
 
@@ -47,7 +47,7 @@ internal sealed class SitesApi(GraphQLHttpClient client, ILogger? logger) : ISit
 	/// <summary>
 	/// Gets a specific site by ID
 	/// </summary>
-	public async Task<Site> GetByIdAsync(string siteId, CancellationToken cancellationToken = default)
+	public async Task<Site> GetByIdAsync(string siteId, CancellationToken cancellationToken)
 	{
 		ArgumentException.ThrowIfNullOrWhiteSpace(siteId);
 

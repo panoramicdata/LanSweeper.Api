@@ -16,6 +16,6 @@ public interface IReportsApi
 	/// <exception cref="LanSweeperGraphQLException">Thrown when the query contains errors</exception>
 	Task<T> ExecuteQueryAsync<T>(
 		string query,
-		Dictionary<string, object>? variables = null,
-		CancellationToken cancellationToken = default);
+		Dictionary<string, object>? variables,
+		CancellationToken cancellationToken);
 }

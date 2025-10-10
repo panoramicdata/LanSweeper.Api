@@ -11,11 +11,6 @@ public sealed class TestConfig
 	public required string AccessToken { get; init; }
 
 	/// <summary>
-	/// Gets or sets an optional test site ID
-	/// </summary>
-	public string? TestSiteId { get; init; }
-
-	/// <summary>
 	/// Gets or sets whether to enable verbose logging
 	/// </summary>
 	public bool EnableVerboseLogging { get; init; }

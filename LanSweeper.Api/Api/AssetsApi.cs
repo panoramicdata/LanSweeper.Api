@@ -13,7 +13,7 @@ internal sealed class AssetsApi(GraphQLHttpClient client, ILogger? logger) : IAs
 	/// </summary>
 	public async Task<IReadOnlyList<Asset>> GetBySiteAsync(
 		string siteId,
-		CancellationToken cancellationToken = default)
+		CancellationToken cancellationToken)
 	{
 		ArgumentException.ThrowIfNullOrWhiteSpace(siteId);
 
@@ -61,7 +61,7 @@ internal sealed class AssetsApi(GraphQLHttpClient client, ILogger? logger) : IAs
 	/// </summary>
 	public async Task<Asset> GetByIdAsync(
 		string assetId,
-		CancellationToken cancellationToken = default)
+		CancellationToken cancellationToken)
 	{
 		ArgumentException.ThrowIfNullOrWhiteSpace(assetId);
 

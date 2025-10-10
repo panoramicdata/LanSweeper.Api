@@ -18,7 +18,7 @@ public sealed class AssetsApiTests : IntegrationTestBase
 			return;
 		}
 
-		var siteId = Config.TestSiteId ?? sites[0].Id;
+		var siteId = sites[0].Id;
 
 		// Act
 		var assets = await Client.Data.Assets.GetBySiteAsync(siteId, CancellationToken);
@@ -72,7 +72,7 @@ public sealed class AssetsApiTests : IntegrationTestBase
 			return;
 		}
 
-		var siteId = Config.TestSiteId ?? sites[0].Id;
+		var siteId = sites[0].Id;
 		var assets = await Client.Data.Assets.GetBySiteAsync(siteId, CancellationToken);
 
 		if (assets.Count == 0)

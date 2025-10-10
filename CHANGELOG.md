@@ -8,12 +8,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Changed
+- **BREAKING**: CancellationToken parameter is now required on all async API methods
+  - Removed `= default` from all CancellationToken parameters
+  - Use `CancellationToken.None` if cancellation is not needed
+  - Reason: Follows .NET best practices and encourages proper async/await patterns
+  - Migration: Add `CancellationToken.None` or pass actual token to all async method calls
+
 - **BREAKING**: Refactored API structure to group Data API operations under `client.Data`
   - Changed: `client.Sites` ? `client.Data.Sites`
   - Changed: `client.Assets` ? `client.Data.Assets`
   - Changed: `client.Users` ? `client.Data.Users`
   - Changed: `client.Reports` ? `client.Data.Reports`
   - Reason: Enables support for additional LanSweeper APIs (Device Recognition API, Platform API) in future releases
+
+### Added
+- Multi-API support roadmap for future versions
+  - v1.2.0: Device Recognition API (REST) - Device identification services
+  - v1.3.0: Platform API (REST) - Platform management and administration
 
 ### Known Issues
 - 4 integration tests failing due to authentication edge cases (under investigation)
