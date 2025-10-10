@@ -10,7 +10,7 @@
 		<WarningsNotAsErrors>VSSpell001</WarningsNotAsErrors>
 		<AnalysisLevel>latest-recommended</AnalysisLevel>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-		<PackageId>LanSweeper.Api</PackageId>
+		<PackageId>PanoramicData.LanSweeper.Api</PackageId>
 		<Authors>Panoramic Data Limited</Authors>
 		<Copyright>Panoramic Data Limited 2025</Copyright>
 		<PackageProjectUrl>https://github.com/panoramicdata/LanSweeper.Api</PackageProjectUrl>
