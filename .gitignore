@@ -416,3 +416,9 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+
+# NuGet API Key (for Publish.ps1)
+nuget-key.txt
+
+# Build artifacts folder
+artifacts/
