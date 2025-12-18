@@ -77,15 +77,20 @@ Write-Success "Git working directory is clean"
 
 # Step 2: Determine Nerdbank git version
 Write-Status "Determining version..."
-$versionOutput = dotnet nbgv get-version --format json 2>&1 | Out-String
-if ($LASTEXITCODE -ne 0) {
-    Write-Error "Failed to get Nerdbank.GitVersioning version"
-    Write-Host $versionOutput
+
+# Build once to generate version info, then extract from assembly
+dotnet build LanSweeper.Api/LanSweeper.Api.csproj --configuration Release --verbosity quiet 2>&1 | Out-Null
+
+# Get version from the built assembly
+$assemblyPath = "LanSweeper.Api/bin/Release/net10.0/LanSweeper.Api.dll"
+if (-not (Test-Path $assemblyPath)) {
+    Write-Error "Could not find built assembly to determine version"
     exit 2
 }
 
-$versionInfo = $versionOutput | ConvertFrom-Json
-$version = $versionInfo.NuGetPackageVersion
+$assemblyName = [System.Reflection.AssemblyName]::GetAssemblyName((Resolve-Path $assemblyPath))
+$version = $assemblyName.Version.ToString(3)
+
 if ([string]::IsNullOrWhiteSpace($version)) {
     Write-Error "Could not determine package version"
     exit 2
