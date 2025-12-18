@@ -5,10 +5,8 @@
 
 using System.Diagnostics.CodeAnalysis;
 
-[assembly: SuppressMessage("Style", "IDE0058:Expression value is never used", Justification = "<Pending>", Scope = "member", Target = "~M:LanSweeper.Api.Test.LanSweeperClientOptionsTests.Constructor_WithValidOptions_ShouldSucceed")]
-[assembly: SuppressMessage("Style", "IDE0058:Expression value is never used", Justification = "<Pending>", Scope = "member", Target = "~M:LanSweeper.Api.Test.LanSweeperClientOptionsTests.Validate_WithInvalidEndpoint_ShouldThrow")]
-[assembly: SuppressMessage("Style", "IDE0058:Expression value is never used", Justification = "<Pending>", Scope = "member", Target = "~M:LanSweeper.Api.Test.LanSweeperClientOptionsTests.Validate_WithMissingAccessToken_ShouldThrow")]
-[assembly: SuppressMessage("Style", "IDE0058:Expression value is never used", Justification = "<Pending>", Scope = "member", Target = "~M:LanSweeper.Api.Test.LanSweeperClientOptionsTests.Validate_WithNegativeRetryAttempts_ShouldThrow")]
-[assembly: SuppressMessage("Style", "IDE0058:Expression value is never used", Justification = "<Pending>", Scope = "member", Target = "~M:LanSweeper.Api.Test.LanSweeperClientTests.Constructor_WithNullOptions_ShouldThrow")]
-[assembly: SuppressMessage("Style", "IDE0058:Expression value is never used", Justification = "<Pending>", Scope = "member", Target = "~M:LanSweeper.Api.Test.LanSweeperClientTests.Constructor_WithValidOptions_ShouldSucceed")]
-[assembly: SuppressMessage("Style", "IDE0058:Expression value is never used", Justification = "<Pending>", Scope = "member", Target = "~M:LanSweeper.Api.Test.SmokeTests.ProjectSetup_ShouldCompile")]
+[assembly: SuppressMessage(
+	"Performance",
+	"CA1873:Avoid potentially expensive logging",
+	Justification = "Performance gain not worth implementation cost"
+)]

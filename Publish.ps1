@@ -6,395 +6,152 @@
     Publishes LanSweeper.Api package to NuGet.org
 
 .DESCRIPTION
-    This script performs the following steps:
- 1. Checks that NuGet packages are up to date
-    2. Ensures git working directory is clean (porcelain)
-    3. Builds the solution in Release mode
-    4. Runs all tests and ensures 100% pass rate
-    5. Packs the NuGet package with symbols
-    6. Publishes to NuGet.org using API key from nuget-key.txt
+    This script performs the following steps, stopping if any fails:
+    1. Checks git is porcelain (clean working directory)
+    2. Determines the Nerdbank git version
+    3. Checks nuget-key.txt exists, has content, and is gitignored
+    4. Runs unit tests (unless -SkipTests is specified)
+    5. Publishes to nuget.org
 
 .PARAMETER SkipTests
-    Skip running tests (not recommended for production releases)
-
-.PARAMETER DryRun
-    Perform all steps except the actual publish to NuGet
-
-.PARAMETER Force
-    Skip git porcelain check (not recommended)
+    Skip running tests
 
 .EXAMPLE
     .\Publish.ps1
     Standard publish workflow
 
 .EXAMPLE
-    .\Publish.ps1 -DryRun
-    Test the publish process without actually publishing
+    .\Publish.ps1 -SkipTests
+    Publish without running tests
 
 .NOTES
     Requires:
     - PowerShell 7.0+
-    - .NET 9 SDK
-    - nuget-key.txt file in solution root (git-ignored)
+    - .NET SDK
+    - nuget-key.txt file in solution root (must be gitignored)
+
+    Exit codes:
+    0 - Success
+    1 - Git not porcelain
+    2 - Version detection failed
+    3 - nuget-key.txt missing, empty, or not gitignored
+    4 - Tests failed
+    5 - Build/pack failed
+    6 - Publish failed
 #>
 
 [CmdletBinding()]
 param(
     [Parameter()]
-    [switch]$SkipTests,
-
-    [Parameter()]
-    [switch]$DryRun,
-
-    [Parameter()]
-    [switch]$Force
+    [switch]$SkipTests
 )
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 $ProgressPreference = 'SilentlyContinue'
 
+function Write-Status {
+    param([string]$Message)
+    Write-Host "[STATUS] $Message" -ForegroundColor Cyan
+}
+
 function Write-Success {
     param([string]$Message)
     Write-Host "[OK] $Message" -ForegroundColor Green
 }
 
-function Write-Info {
+function Write-Error {
     param([string]$Message)
-    Write-Host "[>>] $Message" -ForegroundColor Cyan
+    Write-Host "[ERROR] $Message" -ForegroundColor Red
 }
 
-function Write-Warning {
-  param([string]$Message)
-    Write-Host "[!!] $Message" -ForegroundColor Yellow
-}
-
-function Write-Failure {
-    param([string]$Message)
-    Write-Host "[XX] $Message" -ForegroundColor Red
-}
-
-function Write-Step {
-    param([string]$Message)
-  Write-Host ""
-    Write-Host "================================================================" -ForegroundColor Blue
-    Write-Host " $Message" -ForegroundColor Blue
-    Write-Host "================================================================" -ForegroundColor Blue
-}
-
-function Test-CommandExists {
-    param([string]$Command)
-    $null -ne (Get-Command $Command -ErrorAction SilentlyContinue)
-}
-
-function Get-ProjectVersion {
-    $versionJson = Get-Content "version.json" -Raw | ConvertFrom-Json
-    $gitHeight = (git rev-list --count HEAD)
-    return "$($versionJson.version).$gitHeight"
-}
-
-# Banner
-Write-Host ""
-Write-Host "================================================================" -ForegroundColor Magenta
-Write-Host " LanSweeper.Api NuGet Publish Script" -ForegroundColor Magenta
-Write-Host "================================================================" -ForegroundColor Magenta
-Write-Host ""
-
-$version = Get-ProjectVersion
-Write-Info "Version: $version"
-if ($DryRun) { Write-Warning "DRY RUN MODE - No actual publish will occur" }
-Write-Host ""
-
-# Step 1: Check Prerequisites
-Write-Step "Step 1: Checking Prerequisites"
-
-# Check PowerShell version
-if ($PSVersionTable.PSVersion.Major -lt 7) {
-    Write-Failure "PowerShell 7.0+ is required. Current version: $($PSVersionTable.PSVersion)"
-    exit 1
-}
-Write-Success "PowerShell version: $($PSVersionTable.PSVersion)"
-
-# Check .NET SDK
-if (-not (Test-CommandExists 'dotnet')) {
-    Write-Failure ".NET SDK not found. Please install .NET 9 SDK."
-    exit 1
-}
-$dotnetVersion = dotnet --version
-Write-Success ".NET SDK version: $dotnetVersion"
-
-# Check git
-if (-not (Test-CommandExists 'git')) {
-    Write-Failure "Git not found. Please install Git."
-    exit 1
-}
-$gitVersion = git --version
-Write-Success "$gitVersion"
-
-# Check for nuget-key.txt
-if (-not (Test-Path "nuget-key.txt")) {
-    Write-Failure "nuget-key.txt not found in solution root"
-    Write-Info "Create this file with your NuGet API key from: https://www.nuget.org/account/apikeys"
-    exit 1
-}
-Write-Success "NuGet API key file found"
-
-# Step 2: Check NuGet Package Updates
-Write-Step "Step 2: Checking for NuGet Package Updates"
-
-Write-Info "Checking for outdated packages..."
-try {
-    $outdatedOutput = dotnet list package --outdated 2>&1 | Out-String
-    
-# Check if there are any outdated packages mentioned in the output
-    if ($outdatedOutput -match "Top-level Package\s+Requested\s+Resolved\s+Latest") {
-        # Parse the table to find outdated packages
-        $lines = $outdatedOutput -split "`n"
-        $hasOutdated = $false
-    
-        foreach ($line in $lines) {
-    # Look for package lines (have version numbers)
-            if ($line -match '^\s*>\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)') {
-              $packageName = $matches[1]
-$requested = $matches[2]
-           $resolved = $matches[3]
-  $latest = $matches[4]
-
-         if ($resolved -ne $latest) {
-       $hasOutdated = $true
-    Write-Warning "Outdated: $packageName $resolved -> $latest"
-}
-            }
-        }
-        
-        if ($hasOutdated) {
-   Write-Warning "Some packages are outdated. Consider updating before publishing."
-        $response = Read-Host "Continue anyway? (y/N)"
- if ($response -ne 'y' -and $response -ne 'Y') {
-     Write-Info "Publish cancelled by user"
-                exit 0
-     }
-        } else {
-        Write-Success "All packages are up to date"
-        }
-    } else {
- Write-Success "All packages are up to date"
-    }
-} catch {
-    Write-Warning "Could not check for outdated packages: $_"
-    Write-Info "Continuing anyway..."
-}
-
-# Step 3: Check Git Status (Porcelain)
-Write-Step "Step 3: Checking Git Status"
-
-$gitStatus = git status --porcelain
-if ($gitStatus -and -not $Force) {
-    Write-Failure "Git working directory is not clean (porcelain)"
-    Write-Host ""
-    Write-Host "Uncommitted changes:" -ForegroundColor Yellow
+# Step 1: Check git is porcelain
+Write-Status "Checking git status..."
+$gitStatus = git status --porcelain 2>&1
+if ($gitStatus) {
+    Write-Error "Git working directory is not clean"
     git status --short
-    Write-Host ""
-    Write-Info "Commit or stash changes before publishing, or use -Force to override"
     exit 1
-} elseif ($gitStatus -and $Force) {
-    Write-Warning "Git working directory is not clean, but -Force was specified"
-} else {
-    Write-Success "Git working directory is clean (porcelain)"
 }
+Write-Success "Git working directory is clean"
 
-$currentBranch = git branch --show-current
-Write-Info "Current branch: $currentBranch"
-
-# Step 4: Clean Solution
-Write-Step "Step 4: Cleaning Solution"
-
-Write-Info "Running dotnet clean..."
-dotnet clean --configuration Release --verbosity quiet
+# Step 2: Determine Nerdbank git version
+Write-Status "Determining version..."
+$versionOutput = dotnet nbgv get-version --format json 2>&1 | Out-String
 if ($LASTEXITCODE -ne 0) {
-    Write-Failure "Clean failed"
-    exit 1
+    Write-Error "Failed to get Nerdbank.GitVersioning version"
+    Write-Host $versionOutput
+    exit 2
 }
-Write-Success "Solution cleaned"
 
-# Step 5: Restore Dependencies
-Write-Step "Step 5: Restoring Dependencies"
+$versionInfo = $versionOutput | ConvertFrom-Json
+$version = $versionInfo.NuGetPackageVersion
+if ([string]::IsNullOrWhiteSpace($version)) {
+    Write-Error "Could not determine package version"
+    exit 2
+}
+Write-Success "Version: $version"
 
-Write-Info "Running dotnet restore..."
-dotnet restore --verbosity quiet
+# Step 3: Check nuget-key.txt exists, has content, and is gitignored
+Write-Status "Checking nuget-key.txt..."
+
+if (-not (Test-Path "nuget-key.txt")) {
+    Write-Error "nuget-key.txt not found"
+    exit 3
+}
+
+$apiKey = (Get-Content "nuget-key.txt" -Raw).Trim()
+if ([string]::IsNullOrWhiteSpace($apiKey)) {
+    Write-Error "nuget-key.txt is empty"
+    exit 3
+}
+
+$gitIgnoreCheck = git check-ignore nuget-key.txt 2>&1
 if ($LASTEXITCODE -ne 0) {
-    Write-Failure "Restore failed"
-    exit 1
+    Write-Error "nuget-key.txt is not gitignored"
+    exit 3
 }
-Write-Success "Dependencies restored"
+Write-Success "nuget-key.txt is valid and gitignored"
 
-# Step 6: Build Solution
-Write-Step "Step 6: Building Solution (Release)"
-
-Write-Info "Running dotnet build..."
-dotnet build --configuration Release --no-restore --verbosity quiet
-if ($LASTEXITCODE -ne 0) {
-    Write-Failure "Build failed"
-    exit 1
-}
-Write-Success "Build completed successfully (0 warnings)"
-
-# Step 7: Run Tests
+# Step 4: Run tests (unless -SkipTests)
 if (-not $SkipTests) {
-    Write-Step "Step 7: Running Tests"
-
-Write-Info "Running dotnet test..."
-    $testOutput = dotnet test --configuration Release --no-build --verbosity normal 2>&1
-    $testExitCode = $LASTEXITCODE
-
-    # Parse test results
-    $testSummaryLine = $testOutput | Where-Object { $_ -match "Test run summary:" } | Select-Object -First 1
-    $totalLine = $testOutput | Where-Object { $_ -match "^\s+total:" } | Select-Object -First 1
-    $failedLine = $testOutput | Where-Object { $_ -match "^\s+failed:" } | Select-Object -First 1
-    $succeededLine = $testOutput | Where-Object { $_ -match "^\s+succeeded:" } | Select-Object -First 1
-
-    if ($totalLine -match "total:\s+(\d+)") { $totalTests = [int]$matches[1] }
-    if ($failedLine -match "failed:\s+(\d+)") { $failedTests = [int]$matches[1] }
-    if ($succeededLine -match "succeeded:\s+(\d+)") { $succeededTests = [int]$matches[1] }
-
-    Write-Host ""
-    Write-Info "Total Tests: $totalTests"
-    Write-Info "Succeeded: $succeededTests"
-    Write-Info "Failed: $failedTests"
-
-    if ($testExitCode -ne 0 -or $failedTests -gt 0) {
-        Write-Failure "Tests failed! Cannot publish with failing tests."
-        Write-Host ""
-   Write-Host "Test output:" -ForegroundColor Yellow
-        $testOutput | Write-Host
-        exit 1
+    Write-Status "Running tests..."
+    dotnet test --configuration Release --verbosity quiet
+    if ($LASTEXITCODE -ne 0) {
+        Write-Error "Tests failed"
+        exit 4
     }
-
-    $passRate = [math]::Round(($succeededTests / $totalTests) * 100, 1)
-    Write-Success "All tests passed! ($passRate% pass rate)"
+    Write-Success "All tests passed"
 } else {
-    Write-Warning "Tests skipped (not recommended for production releases)"
+    Write-Status "Skipping tests (-SkipTests specified)"
 }
 
-# Step 8: Pack NuGet Package
-Write-Step "Step 8: Packing NuGet Package"
-
-Write-Info "Running dotnet pack with symbols..."
-dotnet pack LanSweeper.Api/LanSweeper.Api.csproj `
-    --configuration Release `
-    --no-build `
-    --include-symbols `
-    --include-source `
-    -p:SymbolPackageFormat=snupkg `
-    --output ./artifacts `
-    --verbosity quiet
-
+# Step 5: Build and pack
+Write-Status "Building and packing..."
+dotnet pack LanSweeper.Api/LanSweeper.Api.csproj --configuration Release --include-symbols -p:SymbolPackageFormat=snupkg --output ./artifacts --verbosity quiet
 if ($LASTEXITCODE -ne 0) {
-    Write-Failure "Pack failed"
-    exit 1
+    Write-Error "Build/pack failed"
+    exit 5
 }
 
-# Find the created package
-$packageFile = Get-ChildItem -Path ./artifacts -Filter "LanSweeper.Api.*.nupkg" | 
-    Where-Object { $_.Name -notmatch "\.symbols\.nupkg$" } | 
-    Sort-Object LastWriteTime -Descending | 
-    Select-Object -First 1
-
-$symbolsFile = Get-ChildItem -Path ./artifacts -Filter "LanSweeper.Api.*.snupkg" | 
-    Sort-Object LastWriteTime -Descending | 
+$packageFile = Get-ChildItem -Path ./artifacts -Filter "*.nupkg" |
+    Where-Object { $_.Name -notmatch "\.snupkg$" } |
+    Sort-Object LastWriteTime -Descending |
     Select-Object -First 1
 
 if (-not $packageFile) {
-    Write-Failure "Package file not found in ./artifacts/"
-    exit 1
+    Write-Error "Package file not found"
+    exit 5
 }
-
 Write-Success "Package created: $($packageFile.Name)"
-if ($symbolsFile) {
-    Write-Success "Symbols package created: $($symbolsFile.Name)"
+
+# Step 6: Publish to NuGet
+Write-Status "Publishing to NuGet.org..."
+dotnet nuget push $packageFile.FullName --api-key $apiKey --source https://api.nuget.org/v3/index.json --skip-duplicate
+if ($LASTEXITCODE -ne 0) {
+    Write-Error "Publish failed"
+    exit 6
 }
 
-# Show package info
-$packageSize = [math]::Round($packageFile.Length / 1KB, 2)
-Write-Info "Package size: $packageSize KB"
-
-# Step 9: Publish to NuGet
-Write-Step "Step 9: Publishing to NuGet.org"
-
-if ($DryRun) {
-    Write-Warning "DRY RUN - Skipping actual publish"
-    Write-Info "Would publish: $($packageFile.FullName)"
-    Write-Success "Dry run completed successfully!"
-} else {
-    # Read API key
-    $apiKey = Get-Content "nuget-key.txt" -Raw
- $apiKey = $apiKey.Trim()
-
-    Write-Info "Publishing package to NuGet.org..."
- Write-Warning "This will make version $version publicly available!"
-    
-    $response = Read-Host "Continue with publish? (y/N)"
-    if ($response -ne 'y' -and $response -ne 'Y') {
-        Write-Info "Publish cancelled by user"
-        exit 0
-    }
-
-    dotnet nuget push $packageFile.FullName `
---api-key $apiKey `
-        --source https://api.nuget.org/v3/index.json `
-        --skip-duplicate
-
-    if ($LASTEXITCODE -ne 0) {
-        Write-Failure "Publish failed"
-        exit 1
-    }
-
-    Write-Success "Package published successfully!"
-    Write-Host ""
-    Write-Info "Package URL: https://www.nuget.org/packages/LanSweeper.Api/$version"
-Write-Info "It may take a few minutes to appear in search results"
-}
-
-# Step 10: Create Git Tag
-if (-not $DryRun) {
- Write-Step "Step 10: Creating Git Tag"
-
-    $tagName = "v$version"
-    $existingTag = git tag -l $tagName
-
-    if ($existingTag) {
-        Write-Warning "Tag $tagName already exists"
-    } else {
-        Write-Info "Creating tag: $tagName"
-        git tag -a $tagName -m "Release version $version"
-   
-        $pushTag = Read-Host "Push tag to origin? (y/N)"
-        if ($pushTag -eq 'y' -or $pushTag -eq 'Y') {
-    git push origin $tagName
-            Write-Success "Tag pushed to origin"
-        } else {
-    Write-Info "Tag created locally only. Push later with: git push origin $tagName"
-        }
-    }
-}
-
-# Summary
-Write-Host ""
-Write-Host "================================================================" -ForegroundColor Green
-Write-Host "                 PUBLISH COMPLETE!" -ForegroundColor Green
-Write-Host "================================================================" -ForegroundColor Green
-Write-Host ""
-Write-Success "LanSweeper.Api $version published successfully!"
-Write-Host ""
-
-if (-not $DryRun) {
-    Write-Info "Next steps:"
-    Write-Host "  1. Verify package on NuGet.org: https://www.nuget.org/packages/LanSweeper.Api/" -ForegroundColor Cyan
-    Write-Host "  2. Create GitHub release with release notes" -ForegroundColor Cyan
-    Write-Host "  3. Announce on social media / blog" -ForegroundColor Cyan
-Write-Host "  4. Update documentation if needed" -ForegroundColor Cyan
-    Write-Host ""
-}
-
-Write-Success "Script completed successfully!"
+Write-Success "Published $version to NuGet.org"
 exit 0
