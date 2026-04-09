@@ -1,65 +1,61 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-
-	<PropertyGroup>
-		<TargetFramework>net10.0</TargetFramework>
-		<LangVersion>latest</LangVersion>
-		<ImplicitUsings>enable</ImplicitUsings>
-		<Nullable>enable</Nullable>
-		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-		<WarningsAsErrors />
-		<WarningsNotAsErrors>VSSpell001</WarningsNotAsErrors>
-		<AnalysisLevel>latest-recommended</AnalysisLevel>
-		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-		<PackageId>PanoramicData.LanSweeper.Api</PackageId>
-		<Authors>Panoramic Data Limited</Authors>
-		<Copyright>Panoramic Data Limited 2025</Copyright>
-		<PackageProjectUrl>https://github.com/panoramicdata/LanSweeper.Api</PackageProjectUrl>
-		<RepositoryUrl>https://github.com/panoramicdata/LanSweeper.Api</RepositoryUrl>
-		<RepositoryType>git</RepositoryType>
-		<Description>A comprehensive .NET library for the LanSweeper Data API (GraphQL), providing easy access to LanSweeper's inventory and asset management data with modern C# patterns.</Description>
-		<PackageLicenseExpression>MIT</PackageLicenseExpression>
-		<PackageTags>LanSweeper;Lansweeper;API;GraphQL;IT;Assets;Inventory;Management;Network;Discovery;CMDB</PackageTags>
-		<PackageReleaseNotes>Changelog can be found at https://github.com/panoramicdata/LanSweeper.Api/blob/main/CHANGELOG.md</PackageReleaseNotes>
-		<GenerateDocumentationFile>true</GenerateDocumentationFile>
-		<PublishRepositoryUrl>true</PublishRepositoryUrl>
-		<Company>Panoramic Data Limited</Company>
-		<Product>LanSweeper API</Product>
-		<NeutralLanguage>en</NeutralLanguage>
-		<IncludeSymbols>true</IncludeSymbols>
-		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
-		<EmbedUntrackedSources>true</EmbedUntrackedSources>
-		<PackageReadmeFile>README.md</PackageReadmeFile>
-		<PackageIcon>Icon.png</PackageIcon>
-		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-	</PropertyGroup>
-
-	<ItemGroup>
-		<PackageReference Include="GraphQL.Client" Version="6.1.0" />
-		<PackageReference Include="GraphQL.Client.Serializer.SystemTextJson" Version="6.1.0" />
-		<PackageReference Include="Microsoft.Extensions.Http" Version="10.0.1" />
-		<PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.1" />
-		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.1" />
-		<PackageReference Include="Nerdbank.GitVersioning" Version="3.9.50">
-			<PrivateAssets>all</PrivateAssets>
-			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-		</PackageReference>
-		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0">
-			<PrivateAssets>all</PrivateAssets>
-			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-		</PackageReference>
-	</ItemGroup>
-
-	<ItemGroup>
-		<None Include="..\README.md" Pack="true" PackagePath="\" />
-		<None Include="Icon.png" Pack="true" PackagePath="\" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<InternalsVisibleTo Include="LanSweeper.Api.Test" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<AdditionalFiles Include="..\LanSweeper.Api.dic" />
-	</ItemGroup>
-
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <WarningsAsErrors />
+    <WarningsNotAsErrors>VSSpell001</WarningsNotAsErrors>
+    <AnalysisLevel>latest-recommended</AnalysisLevel>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageId>PanoramicData.LanSweeper.Api</PackageId>
+    <Authors>Panoramic Data Limited</Authors>
+    <Copyright>Panoramic Data Limited 2025</Copyright>
+    <PackageProjectUrl>https://github.com/panoramicdata/LanSweeper.Api</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/panoramicdata/LanSweeper.Api</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <Description>A comprehensive .NET library for the LanSweeper Data API (GraphQL), providing easy access to LanSweeper's inventory and asset management data with modern C# patterns.</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageTags>LanSweeper;Lansweeper;API;GraphQL;IT;Assets;Inventory;Management;Network;Discovery;CMDB</PackageTags>
+    <PackageReleaseNotes>Changelog can be found at https://github.com/panoramicdata/LanSweeper.Api/blob/main/CHANGELOG.md</PackageReleaseNotes>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <Company>Panoramic Data Limited</Company>
+    <Product>LanSweeper API</Product>
+    <NeutralLanguage>en</NeutralLanguage>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageIcon>Icon.png</PackageIcon>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <NeutralResourcesLanguage>en</NeutralResourcesLanguage>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="GraphQL.Client" />
+    <PackageReference Include="GraphQL.Client.Serializer.SystemTextJson" />
+    <PackageReference Include="Microsoft.Extensions.Http" />
+    <PackageReference Include="Microsoft.Extensions.Logging" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+    <PackageReference Include="Nerdbank.GitVersioning">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.SourceLink.GitHub">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\README.md" Pack="true" PackagePath="\" />
+    <None Include="Icon.png" Pack="true" PackagePath="\" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="LanSweeper.Api.Test" />
+  </ItemGroup>
+  <ItemGroup>
+    <AdditionalFiles Include="..\LanSweeper.Api.dic" />
+  </ItemGroup>
 </Project>
