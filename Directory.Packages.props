@@ -9,7 +9,7 @@
     <PackageVersion Include="coverlet.collector" Version="8.0.1" />
     <PackageVersion Include="GraphQL.Client" Version="6.1.0" />
     <PackageVersion Include="GraphQL.Client.Serializer.SystemTextJson" Version="6.1.0" />
-    <PackageVersion Include="Microsoft.Extensions.Configuration" Version="10.0.6" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration" Version="10.0.7" />
     <PackageVersion Include="Microsoft.Extensions.Configuration.Json" Version="10.0.6" />
     <PackageVersion Include="Microsoft.Extensions.Configuration.UserSecrets" Version="10.0.6" />
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="10.0.6" />
