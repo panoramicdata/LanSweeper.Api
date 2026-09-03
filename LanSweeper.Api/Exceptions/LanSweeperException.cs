@@ -34,8 +34,18 @@ public class LanSweeperException : Exception
 	/// </summary>
 	/// <param name="message">The error message</param>
 	/// <param name="statusCode">The HTTP status code</param>
+	public LanSweeperException(string message, HttpStatusCode statusCode)
+		: this(message, statusCode, null)
+	{
+	}
+
+	/// <summary>
+	/// Initializes a new instance of the <see cref="LanSweeperException"/> class
+	/// </summary>
+	/// <param name="message">The error message</param>
+	/// <param name="statusCode">The HTTP status code</param>
 	/// <param name="errorDetails">Additional error details</param>
-	public LanSweeperException(string message, HttpStatusCode statusCode, string? errorDetails = null)
+	public LanSweeperException(string message, HttpStatusCode statusCode, string? errorDetails)
 		: base(message)
 	{
 		StatusCode = statusCode;

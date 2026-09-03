@@ -9,8 +9,17 @@ public sealed class LanSweeperNotFoundException : LanSweeperException
 	/// Initializes a new instance of the <see cref="LanSweeperNotFoundException"/> class
 	/// </summary>
 	/// <param name="message">The error message</param>
+	public LanSweeperNotFoundException(string message)
+		: this(message, (string?)null)
+	{
+	}
+
+	/// <summary>
+	/// Initializes a new instance of the <see cref="LanSweeperNotFoundException"/> class
+	/// </summary>
+	/// <param name="message">The error message</param>
 	/// <param name="errorDetails">Additional error details</param>
-	public LanSweeperNotFoundException(string message, string? errorDetails = null)
+	public LanSweeperNotFoundException(string message, string? errorDetails)
 		: base(message, HttpStatusCode.NotFound, errorDetails)
 	{
 	}

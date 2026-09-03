@@ -65,15 +65,10 @@ public sealed class ReportsApiTests : IntegrationTestBase
 	public async Task ExecuteQueryAsync_WithVariables_ShouldReturnData()
 	{
 		// Arrange - Get a valid site ID first
-		var sites = await Client.Data.Sites.GetAllAsync(CancellationToken);
-
-		if (sites.Count == 0)
+		if (await TryGetFirstSiteIdAsync() is not string siteId)
 		{
-			Logger.LogWarning("Skipping test - no sites available");
 			return;
 		}
-
-		var siteId = sites[0].Id;
 
 		var query = """
 			query GetSiteById($siteId: ID!) {

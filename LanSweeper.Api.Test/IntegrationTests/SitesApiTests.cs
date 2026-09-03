@@ -35,15 +35,10 @@ public sealed class SitesApiTests : IntegrationTestBase
 	public async Task GetByIdAsync_WithValidId_ShouldReturnSite()
 	{
 		// Arrange - Get all sites first to get a valid ID
-		var allSites = await Client.Data.Sites.GetAllAsync(CancellationToken);
-
-		if (allSites.Count == 0)
+		if (await TryGetFirstSiteIdAsync() is not string siteId)
 		{
-			Logger.LogWarning("Skipping test - no sites available");
 			return;
 		}
-
-		var siteId = allSites[0].Id;
 
 		// Act
 		var site = await Client.Data.Sites.GetByIdAsync(siteId, CancellationToken);

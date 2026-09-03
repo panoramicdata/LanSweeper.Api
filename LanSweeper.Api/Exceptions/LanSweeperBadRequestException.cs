@@ -9,8 +9,17 @@ public sealed class LanSweeperBadRequestException : LanSweeperException
 	/// Initializes a new instance of the <see cref="LanSweeperBadRequestException"/> class
 	/// </summary>
 	/// <param name="message">The error message</param>
+	public LanSweeperBadRequestException(string message)
+		: this(message, (string?)null)
+	{
+	}
+
+	/// <summary>
+	/// Initializes a new instance of the <see cref="LanSweeperBadRequestException"/> class
+	/// </summary>
+	/// <param name="message">The error message</param>
 	/// <param name="errorDetails">Additional error details</param>
-	public LanSweeperBadRequestException(string message, string? errorDetails = null)
+	public LanSweeperBadRequestException(string message, string? errorDetails)
 		: base(message, HttpStatusCode.BadRequest, errorDetails)
 	{
 	}

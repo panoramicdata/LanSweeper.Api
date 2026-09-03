@@ -3,11 +3,11 @@ namespace LanSweeper.Api.Api;
 /// <summary>
 /// API for managing LanSweeper assets
 /// </summary>
-internal sealed class AssetsApi(GraphQLHttpClient client, ILogger? logger) : IAssetsApi
+/// <param name="client">The GraphQL HTTP client</param>
+/// <param name="logger">Optional logger instance</param>
+internal sealed class AssetsApi(GraphQLHttpClient client, ILogger? logger)
+	: ApiBase(client, logger), IAssetsApi
 {
-	private readonly GraphQLHttpClient _client = client ?? throw new ArgumentNullException(nameof(client));
-	private readonly ILogger? _logger = logger;
-
 	/// <summary>
 	/// Gets assets from a specific site
 	/// </summary>
@@ -17,7 +17,7 @@ internal sealed class AssetsApi(GraphQLHttpClient client, ILogger? logger) : IAs
 	{
 		ArgumentException.ThrowIfNullOrWhiteSpace(siteId);
 
-		_logger?.LogDebug("Getting assets for site: {SiteId}", siteId);
+		Logger?.LogDebug("Getting assets for site: {SiteId}", siteId);
 
 		var request = new GraphQLRequest
 		{
@@ -29,26 +29,15 @@ internal sealed class AssetsApi(GraphQLHttpClient client, ILogger? logger) : IAs
 			}
 		};
 
-		var response = await _client.SendQueryAsync<AssetsResponse>(
+		var response = await SendQueryAsync<AssetsResponse>(
 			request,
+			$"Failed to retrieve assets for site: {siteId}",
 			cancellationToken)
 			.ConfigureAwait(false);
 
-		// Check for GraphQL errors
-		if (response.Errors?.Length > 0)
-		{
-			var errors = response.Errors
-				.Select(e => new Exceptions.GraphQLError { Message = e.Message })
-				.ToList();
+		var assets = ExtractAssets(response);
 
-			throw new LanSweeperGraphQLException(
-				$"Failed to retrieve assets for site: {siteId}",
-				errors);
-		}
-
-		var assets = response.Data?.Site?.AssetResources?.Items ?? [];
-
-		_logger?.LogDebug(
+		Logger?.LogDebug(
 			"Retrieved {Count} assets for site: {SiteId}",
 			assets.Count,
 			siteId);
@@ -65,7 +54,7 @@ internal sealed class AssetsApi(GraphQLHttpClient client, ILogger? logger) : IAs
 	{
 		ArgumentException.ThrowIfNullOrWhiteSpace(assetId);
 
-		_logger?.LogDebug("Getting asset by ID: {AssetId}", assetId);
+		Logger?.LogDebug("Getting asset by ID: {AssetId}", assetId);
 
 		var request = new GraphQLRequest
 		{
@@ -76,28 +65,20 @@ internal sealed class AssetsApi(GraphQLHttpClient client, ILogger? logger) : IAs
 			}
 		};
 
-		var response = await _client.SendQueryAsync<AssetResponse>(
+		var response = await SendQueryAsync<AssetResponse>(
 			request,
+			$"Failed to retrieve asset with ID: {assetId}",
 			cancellationToken)
 			.ConfigureAwait(false);
 
-		// Check for GraphQL errors
-		if (response.Errors?.Length > 0)
-		{
-			var errors = response.Errors
-				.Select(e => new Exceptions.GraphQLError { Message = e.Message })
-				.ToList();
-
-			throw new LanSweeperGraphQLException(
-				$"Failed to retrieve asset with ID: {assetId}",
-				errors);
-		}
-
-		var asset = response.Data?.Asset
+		var asset = response?.Asset
 			?? throw new LanSweeperNotFoundException($"Asset with ID '{assetId}' not found");
 
-		_logger?.LogDebug("Retrieved asset: {AssetName}", asset.BasicInfo?.Name);
+		Logger?.LogDebug("Retrieved asset: {AssetName}", asset.BasicInfo?.Name);
 
 		return asset;
 	}
+
+	private static IReadOnlyList<Asset> ExtractAssets(AssetsResponse? response)
+		=> response?.Site?.AssetResources?.Items ?? [];
 }

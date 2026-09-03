@@ -3,11 +3,11 @@ namespace LanSweeper.Api.Api;
 /// <summary>
 /// API for executing custom reports and queries
 /// </summary>
-internal sealed class ReportsApi(GraphQLHttpClient client, ILogger? logger) : IReportsApi
+/// <param name="client">The GraphQL HTTP client</param>
+/// <param name="logger">Optional logger instance</param>
+internal sealed class ReportsApi(GraphQLHttpClient client, ILogger? logger)
+	: ApiBase(client, logger), IReportsApi
 {
-	private readonly GraphQLHttpClient _client = client ?? throw new ArgumentNullException(nameof(client));
-	private readonly ILogger? _logger = logger;
-
 	/// <summary>
 	/// Executes a custom GraphQL query
 	/// </summary>
@@ -18,7 +18,7 @@ internal sealed class ReportsApi(GraphQLHttpClient client, ILogger? logger) : IR
 	{
 		ArgumentException.ThrowIfNullOrWhiteSpace(query);
 
-		_logger?.LogDebug("Executing custom GraphQL query");
+		Logger?.LogDebug("Executing custom GraphQL query");
 
 		var request = new GraphQLRequest
 		{
@@ -26,30 +26,19 @@ internal sealed class ReportsApi(GraphQLHttpClient client, ILogger? logger) : IR
 			Variables = variables
 		};
 
-		var response = await _client.SendQueryAsync<T>(
+		var response = await SendQueryAsync<T>(
 			request,
+			"Custom GraphQL query failed",
 			cancellationToken)
 			.ConfigureAwait(false);
 
-		// Check for GraphQL errors
-		if (response.Errors?.Length > 0)
-		{
-			var errors = response.Errors
-				.Select(e => new Exceptions.GraphQLError { Message = e.Message })
-				.ToList();
-
-			throw new LanSweeperGraphQLException(
-				"Custom GraphQL query failed",
-				errors);
-		}
-
-		if (response.Data is null)
+		if (response is null)
 		{
 			throw new LanSweeperException("Query returned no data");
 		}
 
-		_logger?.LogDebug("Custom query executed successfully");
+		Logger?.LogDebug("Custom query executed successfully");
 
-		return response.Data;
+		return response;
 	}
 }

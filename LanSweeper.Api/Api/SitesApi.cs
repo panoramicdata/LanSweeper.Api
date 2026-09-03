@@ -3,43 +3,32 @@ namespace LanSweeper.Api.Api;
 /// <summary>
 /// API for managing LanSweeper sites
 /// </summary>
-internal sealed class SitesApi(GraphQLHttpClient client, ILogger? logger) : ISitesApi
+/// <param name="client">The GraphQL HTTP client</param>
+/// <param name="logger">Optional logger instance</param>
+internal sealed class SitesApi(GraphQLHttpClient client, ILogger? logger)
+	: ApiBase(client, logger), ISitesApi
 {
-	private readonly GraphQLHttpClient _client = client ?? throw new ArgumentNullException(nameof(client));
-	private readonly ILogger? _logger = logger;
-
 	/// <summary>
 	/// Gets all authorized sites
 	/// </summary>
 	public async Task<IReadOnlyList<Site>> GetAllAsync(CancellationToken cancellationToken)
 	{
-		_logger?.LogDebug("Getting all authorized sites");
+		Logger?.LogDebug("Getting all authorized sites");
 
 		var request = new GraphQLRequest
 		{
 			Query = GraphQLQueries.GetAuthorizedSites
 		};
 
-		var response = await _client.SendQueryAsync<AuthorizedSitesResponse>(
+		var response = await SendQueryAsync<AuthorizedSitesResponse>(
 			request,
+			"Failed to retrieve authorized sites",
 			cancellationToken)
 			.ConfigureAwait(false);
 
-		// Check for GraphQL errors
-		if (response.Errors?.Length > 0)
-		{
-			var errors = response.Errors
-				.Select(e => new Exceptions.GraphQLError { Message = e.Message })
-				.ToList();
+		var sites = ExtractSites(response);
 
-			throw new LanSweeperGraphQLException(
-				"Failed to retrieve authorized sites",
-				errors);
-		}
-
-		var sites = response.Data?.AuthorizedSites?.Sites ?? [];
-
-		_logger?.LogDebug("Retrieved {Count} authorized sites", sites.Count);
+		Logger?.LogDebug("Retrieved {Count} authorized sites", sites.Count);
 
 		return sites;
 	}
@@ -51,7 +40,7 @@ internal sealed class SitesApi(GraphQLHttpClient client, ILogger? logger) : ISit
 	{
 		ArgumentException.ThrowIfNullOrWhiteSpace(siteId);
 
-		_logger?.LogDebug("Getting site by ID: {SiteId}", siteId);
+		Logger?.LogDebug("Getting site by ID: {SiteId}", siteId);
 
 		var request = new GraphQLRequest
 		{
@@ -62,28 +51,20 @@ internal sealed class SitesApi(GraphQLHttpClient client, ILogger? logger) : ISit
 			}
 		};
 
-		var response = await _client.SendQueryAsync<SiteResponse>(
+		var response = await SendQueryAsync<SiteResponse>(
 			request,
+			$"Failed to retrieve site with ID: {siteId}",
 			cancellationToken)
 			.ConfigureAwait(false);
 
-		// Check for GraphQL errors
-		if (response.Errors?.Length > 0)
-		{
-			var errors = response.Errors
-				.Select(e => new Exceptions.GraphQLError { Message = e.Message })
-				.ToList();
-
-			throw new LanSweeperGraphQLException(
-				$"Failed to retrieve site with ID: {siteId}",
-				errors);
-		}
-
-		var site = response.Data?.Site
+		var site = response?.Site
 			?? throw new LanSweeperNotFoundException($"Site with ID '{siteId}' not found");
 
-		_logger?.LogDebug("Retrieved site: {SiteName}", site.Name);
+		Logger?.LogDebug("Retrieved site: {SiteName}", site.Name);
 
 		return site;
 	}
+
+	private static IReadOnlyList<Site> ExtractSites(AuthorizedSitesResponse? response)
+		=> response?.AuthorizedSites?.Sites ?? [];
 }

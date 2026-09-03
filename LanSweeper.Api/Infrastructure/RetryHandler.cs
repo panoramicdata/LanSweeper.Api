@@ -25,63 +25,84 @@ internal sealed class RetryHandler(LanSweeperClientOptions options) : Delegating
 			{
 				var response = await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
 
-				// Don't retry on successful responses or client errors (4xx except 429)
-				if (response.IsSuccessStatusCode ||
-					(response.StatusCode >= HttpStatusCode.BadRequest &&
-					 response.StatusCode < HttpStatusCode.InternalServerError &&
-					 response.StatusCode != HttpStatusCode.TooManyRequests))
+				if (!ShouldRetry(response) || attempt >= _options.MaxRetryAttempts)
 				{
 					return response;
 				}
 
-				// For server errors or rate limiting, we may retry
-				if (attempt < _options.MaxRetryAttempts)
-				{
-					_options.Logger?.LogWarning(
-						"Request failed with status {StatusCode}. Attempt {Attempt} of {MaxAttempts}. Retrying...",
-						response.StatusCode,
-						attempt + 1,
-						_options.MaxRetryAttempts);
-
-					await DelayBeforeRetryAsync(attempt, cancellationToken).ConfigureAwait(false);
-					attempt++;
-					continue;
-				}
-
-				return response;
+				LogRetry(response.StatusCode, attempt);
 			}
-			catch (HttpRequestException ex) when (attempt < _options.MaxRetryAttempts)
+			catch (Exception ex) when (IsRetryable(ex, attempt, cancellationToken))
 			{
 				lastException = ex;
-
-				_options.Logger?.LogWarning(
-					ex,
-					"Request failed with exception. Attempt {Attempt} of {MaxAttempts}. Retrying...",
-					attempt + 1,
-					_options.MaxRetryAttempts);
-
-				await DelayBeforeRetryAsync(attempt, cancellationToken).ConfigureAwait(false);
-				attempt++;
+				LogRetry(ex, attempt);
 			}
-			catch (TaskCanceledException ex) when (!cancellationToken.IsCancellationRequested && attempt < _options.MaxRetryAttempts)
-			{
-				// Request timeout, not user cancellation
-				lastException = ex;
 
-				_options.Logger?.LogWarning(
-					ex,
-					"Request timed out. Attempt {Attempt} of {MaxAttempts}. Retrying...",
-					attempt + 1,
-					_options.MaxRetryAttempts);
-
-				await DelayBeforeRetryAsync(attempt, cancellationToken).ConfigureAwait(false);
-				attempt++;
-			}
+			await DelayBeforeRetryAsync(attempt, cancellationToken).ConfigureAwait(false);
+			attempt++;
 		}
 
 		throw new LanSweeperException(
 			$"Request failed after {_options.MaxRetryAttempts} retry attempts",
 			lastException!);
+	}
+
+	/// <summary>
+	/// Determines whether a response is worth retrying. Successful responses and client errors
+	/// (4xx other than 429) are final; server errors and rate limiting may be retried.
+	/// </summary>
+	private static bool ShouldRetry(HttpResponseMessage response)
+		=> !response.IsSuccessStatusCode
+			&& (response.StatusCode < HttpStatusCode.BadRequest
+				|| response.StatusCode >= HttpStatusCode.InternalServerError
+				|| response.StatusCode == HttpStatusCode.TooManyRequests);
+
+	/// <summary>
+	/// Determines whether an exception represents a transient failure that may be retried
+	/// </summary>
+	private bool IsRetryable(Exception exception, int attempt, CancellationToken cancellationToken)
+	{
+		if (attempt >= _options.MaxRetryAttempts)
+		{
+			return false;
+		}
+
+		return exception switch
+		{
+			HttpRequestException => true,
+			// A request timeout, as opposed to the caller cancelling
+			TaskCanceledException => !cancellationToken.IsCancellationRequested,
+			_ => false
+		};
+	}
+
+	private void LogRetry(HttpStatusCode statusCode, int attempt)
+		=> _options.Logger?.LogWarning(
+			"Request failed with status {StatusCode}. Attempt {Attempt} of {MaxAttempts}. Retrying...",
+			statusCode,
+			attempt + 1,
+			_options.MaxRetryAttempts);
+
+	private void LogRetry(Exception exception, int attempt)
+	{
+		// Kept as two literal templates rather than one with the reason as a parameter, so
+		// structured logging sinks can still group these by message.
+		if (exception is TaskCanceledException)
+		{
+			_options.Logger?.LogWarning(
+				exception,
+				"Request timed out. Attempt {Attempt} of {MaxAttempts}. Retrying...",
+				attempt + 1,
+				_options.MaxRetryAttempts);
+
+			return;
+		}
+
+		_options.Logger?.LogWarning(
+			exception,
+			"Request failed with exception. Attempt {Attempt} of {MaxAttempts}. Retrying...",
+			attempt + 1,
+			_options.MaxRetryAttempts);
 	}
 
 	private async Task DelayBeforeRetryAsync(int attempt, CancellationToken cancellationToken)

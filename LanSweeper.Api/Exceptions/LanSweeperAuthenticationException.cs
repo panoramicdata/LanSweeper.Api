@@ -9,8 +9,17 @@ public sealed class LanSweeperAuthenticationException : LanSweeperException
 	/// Initializes a new instance of the <see cref="LanSweeperAuthenticationException"/> class
 	/// </summary>
 	/// <param name="message">The error message</param>
+	public LanSweeperAuthenticationException(string message)
+		: this(message, (string?)null)
+	{
+	}
+
+	/// <summary>
+	/// Initializes a new instance of the <see cref="LanSweeperAuthenticationException"/> class
+	/// </summary>
+	/// <param name="message">The error message</param>
 	/// <param name="errorDetails">Additional error details</param>
-	public LanSweeperAuthenticationException(string message, string? errorDetails = null)
+	public LanSweeperAuthenticationException(string message, string? errorDetails)
 		: base(message, HttpStatusCode.Unauthorized, errorDetails)
 	{
 	}

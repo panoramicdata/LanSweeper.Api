@@ -72,6 +72,26 @@ public abstract class IntegrationTestBase : IDisposable
 	}
 
 	/// <summary>
+	/// Gets the ID of the first authorized site, or <see langword="null"/> when the account has no
+	/// sites. These are live integration tests against whatever data the account holds, so a test
+	/// that needs a site has to skip rather than fail when there is none; a warning is logged so a
+	/// skipped run is not mistaken for a passing one.
+	/// </summary>
+	/// <returns>The first site ID, or null if no sites are available</returns>
+	protected async Task<string?> TryGetFirstSiteIdAsync()
+	{
+		var sites = await Client.Data.Sites.GetAllAsync(CancellationToken);
+
+		if (sites.Count == 0)
+		{
+			Logger.LogWarning("Skipping test - no sites available");
+			return null;
+		}
+
+		return sites[0].Id;
+	}
+
+	/// <summary>
 	/// Disposes the test resources
 	/// </summary>
 	public void Dispose()

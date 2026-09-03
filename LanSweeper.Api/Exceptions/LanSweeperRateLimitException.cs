@@ -14,9 +14,28 @@ public sealed class LanSweeperRateLimitException : LanSweeperException
 	/// Initializes a new instance of the <see cref="LanSweeperRateLimitException"/> class
 	/// </summary>
 	/// <param name="message">The error message</param>
+	public LanSweeperRateLimitException(string message)
+		: this(message, null, null)
+	{
+	}
+
+	/// <summary>
+	/// Initializes a new instance of the <see cref="LanSweeperRateLimitException"/> class
+	/// </summary>
+	/// <param name="message">The error message</param>
+	/// <param name="errorDetails">Additional error details</param>
+	public LanSweeperRateLimitException(string message, string? errorDetails)
+		: this(message, errorDetails, null)
+	{
+	}
+
+	/// <summary>
+	/// Initializes a new instance of the <see cref="LanSweeperRateLimitException"/> class
+	/// </summary>
+	/// <param name="message">The error message</param>
 	/// <param name="errorDetails">Additional error details</param>
 	/// <param name="retryAfter">The time to wait before retrying</param>
-	public LanSweeperRateLimitException(string message, string? errorDetails = null, TimeSpan? retryAfter = null)
+	public LanSweeperRateLimitException(string message, string? errorDetails, TimeSpan? retryAfter)
 		: base(message, HttpStatusCode.TooManyRequests, errorDetails)
 	{
 		RetryAfter = retryAfter;

@@ -10,15 +10,10 @@ public sealed class AssetsApiTests : IntegrationTestBase
 	public async Task GetBySiteAsync_ShouldReturnAssets()
 	{
 		// Arrange - Get a valid site ID first
-		var sites = await Client.Data.Sites.GetAllAsync(CancellationToken);
-
-		if (sites.Count == 0)
+		if (await TryGetFirstSiteIdAsync() is not string siteId)
 		{
-			Logger.LogWarning("Skipping test - no sites available");
 			return;
 		}
-
-		var siteId = sites[0].Id;
 
 		// Act
 		var assets = await Client.Data.Assets.GetBySiteAsync(siteId, CancellationToken);
@@ -64,15 +59,11 @@ public sealed class AssetsApiTests : IntegrationTestBase
 	public async Task GetByIdAsync_WithValidId_ShouldReturnAsset()
 	{
 		// Arrange - Get assets first to get a valid asset ID
-		var sites = await Client.Data.Sites.GetAllAsync(CancellationToken);
-
-		if (sites.Count == 0)
+		if (await TryGetFirstSiteIdAsync() is not string siteId)
 		{
-			Logger.LogWarning("Skipping test - no sites available");
 			return;
 		}
 
-		var siteId = sites[0].Id;
 		var assets = await Client.Data.Assets.GetBySiteAsync(siteId, CancellationToken);
 
 		if (assets.Count == 0)
