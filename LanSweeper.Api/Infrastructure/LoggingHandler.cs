@@ -5,7 +5,7 @@ namespace LanSweeper.Api.Infrastructure;
 /// <summary>
 /// Logs HTTP requests and responses for diagnostic purposes
 /// </summary>
-internal sealed partial class LoggingHandler(LanSweeperClientOptions options) : DelegatingHandler
+internal sealed class LoggingHandler(LanSweeperClientOptions options) : DelegatingHandler
 {
 	private readonly LanSweeperClientOptions _options = options ?? throw new ArgumentNullException(nameof(options));
 
@@ -74,8 +74,13 @@ internal sealed partial class LoggingHandler(LanSweeperClientOptions options) : 
 	private static string MaskSensitiveData(string content) =>
 		// Basic masking of tokens - can be enhanced as needed
 		content.Contains("Bearer ", StringComparison.OrdinalIgnoreCase)
-			? SecretMaskingRegex().Replace(content, "Bearer ***MASKED***")
+			? SecretMaskingRegex.Replace(content, "Bearer ***MASKED***")
 			: content;
-	[GeneratedRegex(@"Bearer\s+[^\s""]+", RegexOptions.IgnoreCase, "en-GB")]
-	private static partial Regex SecretMaskingRegex();
+
+	// A static compiled Regex rather than a [GeneratedRegex] partial method: the source generator
+	// requires the containing type to be partial, and analysers that run without the generated
+	// part then report that 'partial' as gratuitous (Sonar S2333).
+	private static readonly Regex SecretMaskingRegex = new(
+		@"Bearer\s+[^\s""]+",
+		RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.CultureInvariant);
 }
