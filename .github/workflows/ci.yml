@@ -113,7 +113,7 @@ jobs:
         --coverage-settings "$GITHUB_WORKSPACE/coverage.config"
         --coverage-output-format cobertura
         --coverage-output coverage.cobertura.xml
-        --filter "Category!=Integration__FILTER_ARG__Category!=Debug__FILTER_ARG__Category!=Diagnostic"
+        --filter "Category!=Integration&Category!=Debug&Category!=Diagnostic"
 
     # continue-on-error: a Codacy outage must not turn a passing test run red. The trade-off is that
     # an expired project token fails silently, so check the log for "Coverage received successfully".
