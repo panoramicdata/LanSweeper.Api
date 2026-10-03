@@ -30,8 +30,9 @@ jobs:
     - name: Build solution
       run: dotnet build --configuration ${{ env.CONFIGURATION }} --no-restore --verbosity minimal
 
+    # The live-API test categories need an access token from user secrets and never run in CI.
     - name: Run tests
-      run: dotnet test --configuration ${{ env.CONFIGURATION }} --no-build --verbosity minimal
+      run: dotnet test --configuration ${{ env.CONFIGURATION }} --no-build --verbosity minimal --filter "Category!=Integration&Category!=Debug&Category!=Diagnostic"
 
     - name: Pack NuGet package
       run: dotnet pack LanSweeper.Api/LanSweeper.Api.csproj --configuration ${{ env.CONFIGURATION }} --no-build --output ./artifacts
