@@ -54,7 +54,7 @@
 LanSweeper.Api/
 ├── .github/
 │   ├── workflows/
-│   │   └── publish-nuget.yml
+│   │   └── ci.yml
 │   └── copilot-instructions.md
 ├── LanSweeper.Api/                    # Main library project
 │   ├── Infrastructure/
@@ -117,9 +117,9 @@ LanSweeper.Api/
 
 ### 0.4 GitHub Actions Setup
 **Tasks**:
-- [ ] Create `.github/workflows/publish-nuget.yml`
+- [x] Publish from `.github/workflows/ci.yml` (trusted publishing on bare-version tags)
 - [ ] Adapt workflow for LanSweeper.Api namespace
-- [ ] Configure GitHub secrets (NUGET_API_KEY)
+- [x] NuGet trusted publishing (no NUGET_API_KEY secret)
 - [ ] Update release notes template for GraphQL context
 
 ---
@@ -1063,7 +1063,7 @@ public interface IReportsApi
 - [x] Add NuGet package metadata
 - [x] Create custom dictionary file for spell checking
 - [x] Add initial NuGet dependencies
-- [x] Create `.github/workflows/publish-nuget.yml` (if exists)
+- [x] Publish via `.github/workflows/ci.yml`
 
 ### ✅ Phase 1: Core Infrastructure - COMPLETE
 **Status**: All infrastructure components implemented and tested
