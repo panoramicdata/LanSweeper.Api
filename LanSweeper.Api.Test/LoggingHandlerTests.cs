@@ -20,174 +20,135 @@ public sealed class LoggingHandlerTests
 			Logger = logger
 		};
 
+	private sealed class TestSetup : IDisposable
+	{
+		public CaptureLogger Logger { get; } = new();
+		public FakeInnerHandler Inner { get; } = new(HttpStatusCode.OK);
+		public LoggingHandler Handler { get; }
+		public HttpClient Client { get; }
+
+		public TestSetup(bool enableRequestLogging = true, bool enableResponseLogging = true)
+		{
+			Handler = new LoggingHandler(BuildOptions(enableRequestLogging, enableResponseLogging, Logger))
+			{
+				InnerHandler = Inner
+			};
+			Client = new HttpClient(Handler);
+		}
+
+		public void Dispose()
+		{
+			Client.Dispose();
+			Handler.Dispose();
+		}
+	}
+
 	[Fact]
 	public async Task SendAsync_WithBothLoggingEnabled_LogsRequestAndResponse()
 	{
-		// Arrange
-		var logger = new CaptureLogger();
-		var inner = new FakeInnerHandler(HttpStatusCode.OK);
-		using var handler = new LoggingHandler(
-			BuildOptions(logger: logger)) { InnerHandler = inner };
-		using var client = new HttpClient(handler);
-
+		using var setup = new TestSetup();
 		var request = new HttpRequestMessage(HttpMethod.Post, "https://api.example/graphql")
 		{
 			Content = new StringContent("{\"query\":\"{ hello }\"")
 		};
 
-		// Act
-		var response = await client.SendAsync(request, CancellationToken.None);
+		var response = await setup.Client.SendAsync(request, CancellationToken.None);
 
-		// Assert
 		response.StatusCode.Should().Be(HttpStatusCode.OK);
-		logger.Messages.Should().Contain(m => m.Contains("HTTP Request"));
-		logger.Messages.Should().Contain(m => m.Contains("HTTP Response"));
+		setup.Logger.Messages.Should().Contain(m => m.Contains("HTTP Request"));
+		setup.Logger.Messages.Should().Contain(m => m.Contains("HTTP Response"));
 	}
 
 	[Fact]
 	public async Task SendAsync_WithRequestContent_MasksBearerToken()
 	{
-		// Arrange
-		var logger = new CaptureLogger();
-		var inner = new FakeInnerHandler(HttpStatusCode.OK);
-		using var handler = new LoggingHandler(
-			BuildOptions(logger: logger)) { InnerHandler = inner };
-		using var client = new HttpClient(handler);
-
+		using var setup = new TestSetup();
 		var request = new HttpRequestMessage(HttpMethod.Post, "https://api.example/graphql")
 		{
 			Content = new StringContent("Authorization: Bearer secret-token-123")
 		};
 
-		// Act
-		await client.SendAsync(request, CancellationToken.None);
+		await setup.Client.SendAsync(request, CancellationToken.None);
 
-		// Assert
-		logger.Messages.Should().Contain(m => m.Contains("***MASKED***"));
-		logger.Messages.Should().NotContain(m => m.Contains("secret-token-123"));
+		setup.Logger.Messages.Should().Contain(m => m.Contains("***MASKED***"));
+		setup.Logger.Messages.Should().NotContain(m => m.Contains("secret-token-123"));
 	}
 
 	[Fact]
 	public async Task SendAsync_WithNonBearerContent_DoesNotMask()
 	{
-		// Arrange
-		var logger = new CaptureLogger();
-		var inner = new FakeInnerHandler(HttpStatusCode.OK);
-		using var handler = new LoggingHandler(
-			BuildOptions(logger: logger)) { InnerHandler = inner };
-		using var client = new HttpClient(handler);
-
+		using var setup = new TestSetup();
 		var request = new HttpRequestMessage(HttpMethod.Post, "https://api.example/graphql")
 		{
 			Content = new StringContent("Authorization: Token my-token-456")
 		};
 
-		// Act
-		await client.SendAsync(request, CancellationToken.None);
+		await setup.Client.SendAsync(request, CancellationToken.None);
 
-		// Assert
-		logger.Messages.Should().Contain(m => m.Contains("my-token-456"));
+		setup.Logger.Messages.Should().Contain(m => m.Contains("my-token-456"));
 	}
 
 	[Fact]
 	public async Task SendAsync_WithNoContent_DoesNotLogContent()
 	{
-		// Arrange
-		var logger = new CaptureLogger();
-		var inner = new FakeInnerHandler(HttpStatusCode.OK);
-		using var handler = new LoggingHandler(
-			BuildOptions(logger: logger)) { InnerHandler = inner };
-		using var client = new HttpClient(handler);
-
+		using var setup = new TestSetup();
 		var request = new HttpRequestMessage(HttpMethod.Get, "https://api.example/graphql");
 
-		// Act
-		await client.SendAsync(request, CancellationToken.None);
+		await setup.Client.SendAsync(request, CancellationToken.None);
 
-		// Assert
-		logger.Messages.Should().Contain(m => m.Contains("HTTP Request"));
-		logger.Messages.Should().NotContain(m => m.Contains("Request Content"));
+		setup.Logger.Messages.Should().Contain(m => m.Contains("HTTP Request"));
+		setup.Logger.Messages.Should().NotContain(m => m.Contains("Request Content"));
 	}
 
 	[Fact]
 	public async Task SendAsync_WhenRequestLoggingDisabled_SkipsRequestLogging()
 	{
-		// Arrange
-		var logger = new CaptureLogger();
-		var inner = new FakeInnerHandler(HttpStatusCode.OK);
-		using var handler = new LoggingHandler(
-			BuildOptions(enableRequestLogging: false, logger: logger)) { InnerHandler = inner };
-		using var client = new HttpClient(handler);
-
+		using var setup = new TestSetup(enableRequestLogging: false);
 		var request = new HttpRequestMessage(HttpMethod.Post, "https://api.example/graphql")
 		{
 			Content = new StringContent("{\"query\":\"{ hello }\"")
 		};
 
-		// Act
-		await client.SendAsync(request, CancellationToken.None);
+		await setup.Client.SendAsync(request, CancellationToken.None);
 
-		// Assert
-		logger.Messages.Should().NotContain(m => m.Contains("HTTP Request"));
-		logger.Messages.Should().Contain(m => m.Contains("HTTP Response"));
+		setup.Logger.Messages.Should().NotContain(m => m.Contains("HTTP Request"));
+		setup.Logger.Messages.Should().Contain(m => m.Contains("HTTP Response"));
 	}
 
 	[Fact]
 	public async Task SendAsync_WhenResponseLoggingDisabled_SkipsResponseLogging()
 	{
-		// Arrange
-		var logger = new CaptureLogger();
-		var inner = new FakeInnerHandler(HttpStatusCode.OK);
-		using var handler = new LoggingHandler(
-			BuildOptions(enableResponseLogging: false, logger: logger)) { InnerHandler = inner };
-		using var client = new HttpClient(handler);
-
+		using var setup = new TestSetup(enableResponseLogging: false);
 		var request = new HttpRequestMessage(HttpMethod.Get, "https://api.example/graphql");
 
-		// Act
-		await client.SendAsync(request, CancellationToken.None);
+		await setup.Client.SendAsync(request, CancellationToken.None);
 
-		// Assert
-		logger.Messages.Should().Contain(m => m.Contains("HTTP Request"));
-		logger.Messages.Should().NotContain(m => m.Contains("HTTP Response"));
+		setup.Logger.Messages.Should().Contain(m => m.Contains("HTTP Request"));
+		setup.Logger.Messages.Should().NotContain(m => m.Contains("HTTP Response"));
 	}
 
 	[Fact]
 	public async Task SendAsync_WithLongResponse_TriggersTruncation()
 	{
-		// Arrange
-		var logger = new CaptureLogger();
-		var longBody = new string('x', 1500);
-		var inner = new FakeInnerHandler(HttpStatusCode.OK);
-		using var handler = new LoggingHandler(
-			BuildOptions(logger: logger)) { InnerHandler = inner };
-		using var client = new HttpClient(handler);
+		using var setup = new TestSetup();
 
-		// Act
-		await client.SendAsync(
+		await setup.Client.SendAsync(
 			new HttpRequestMessage(HttpMethod.Get, "https://api.example/graphql"),
 			CancellationToken.None);
 
-		// Assert
-		logger.Messages.Should().Contain(m => m.Contains("HTTP Response"));
+		setup.Logger.Messages.Should().Contain(m => m.Contains("HTTP Response"));
 	}
 
 	[Fact]
 	public async Task SendAsync_WithBothLoggingDisabled_ReturnsResponse()
 	{
-		// Arrange
-		var inner = new FakeInnerHandler(HttpStatusCode.OK);
-		using var handler = new LoggingHandler(
-			BuildOptions(enableRequestLogging: false, enableResponseLogging: false)) { InnerHandler = inner };
-		using var client = new HttpClient(handler);
+		using var setup = new TestSetup(enableRequestLogging: false, enableResponseLogging: false);
 
-		// Act
-		var response = await client.SendAsync(
+		var response = await setup.Client.SendAsync(
 			new HttpRequestMessage(HttpMethod.Get, "https://api.example/graphql"),
 			CancellationToken.None);
 
-		// Assert
 		response.StatusCode.Should().Be(HttpStatusCode.OK);
-		inner.Attempts.Should().Be(1);
+		setup.Inner.Attempts.Should().Be(1);
 	}
 }

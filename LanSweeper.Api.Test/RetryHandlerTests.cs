@@ -9,30 +9,18 @@ using LanSweeper.Api.Infrastructure;
 public sealed class RetryHandlerTests
 {
 	private static LanSweeperClientOptions BuildOptions(
-		int maxRetryAttempts = 2,
-		bool useExponentialBackoff = true,
-		TimeSpan maxRetryDelay = default,
-		ILogger? logger = null)
+		int maxRetryAttempts,
+		bool useExponentialBackoff,
+		TimeSpan? maxRetryDelay,
+		ILogger? logger)
 	{
-		if (maxRetryDelay == default)
-		{
-			return new LanSweeperClientOptions
-			{
-				AccessToken = "test-token",
-				MaxRetryAttempts = maxRetryAttempts,
-				RetryDelay = TimeSpan.FromMilliseconds(1),
-				UseExponentialBackoff = useExponentialBackoff,
-				Logger = logger
-			};
-		}
-
 		return new LanSweeperClientOptions
 		{
 			AccessToken = "test-token",
 			MaxRetryAttempts = maxRetryAttempts,
 			RetryDelay = TimeSpan.FromMilliseconds(1),
 			UseExponentialBackoff = useExponentialBackoff,
-			MaxRetryDelay = maxRetryDelay,
+			MaxRetryDelay = maxRetryDelay ?? TimeSpan.Zero,
 			Logger = logger
 		};
 	}
@@ -40,16 +28,31 @@ public sealed class RetryHandlerTests
 	private static HttpRequestMessage NewRequest()
 		=> new(HttpMethod.Get, "https://api.example/graphql");
 
+	private static async Task<HttpResponseMessage> SendWithRetryAsync(
+		FakeInnerHandler inner,
+		int maxRetryAttempts,
+		bool useExponentialBackoff,
+		TimeSpan? maxRetryDelay = null,
+		ILogger? logger = null,
+		CancellationToken? token = null)
+	{
+		using var handler = new RetryHandler(
+			BuildOptions(maxRetryAttempts, useExponentialBackoff, maxRetryDelay, logger))
+		{
+			InnerHandler = inner
+		};
+		using var client = new HttpClient(handler);
+		return await client.SendAsync(NewRequest(), token ?? CancellationToken.None);
+	}
+
 	[Fact]
 	public async Task SendAsync_WhenSuccessImmediately_ReturnsSuccess()
 	{
 		// Arrange
 		var inner = new FakeInnerHandler(HttpStatusCode.OK);
-		using var handler = new RetryHandler(BuildOptions()) { InnerHandler = inner };
-		using var client = new HttpClient(handler);
 
 		// Act
-		var response = await client.SendAsync(NewRequest(), CancellationToken.None);
+		var response = await SendWithRetryAsync(inner, 2, useExponentialBackoff: true);
 
 		// Assert
 		response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -62,11 +65,9 @@ public sealed class RetryHandlerTests
 		// Arrange
 		var inner = new FakeInnerHandler(
 			[HttpStatusCode.InternalServerError, HttpStatusCode.OK]);
-		using var handler = new RetryHandler(BuildOptions(maxRetryAttempts: 3)) { InnerHandler = inner };
-		using var client = new HttpClient(handler);
 
 		// Act
-		var response = await client.SendAsync(NewRequest(), CancellationToken.None);
+		var response = await SendWithRetryAsync(inner, 3, useExponentialBackoff: true);
 
 		// Assert
 		response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -79,11 +80,9 @@ public sealed class RetryHandlerTests
 		// Arrange
 		var inner = new FakeInnerHandler(
 			[HttpStatusCode.TooManyRequests, HttpStatusCode.OK]);
-		using var handler = new RetryHandler(BuildOptions()) { InnerHandler = inner };
-		using var client = new HttpClient(handler);
 
 		// Act
-		var response = await client.SendAsync(NewRequest(), CancellationToken.None);
+		var response = await SendWithRetryAsync(inner, 2, useExponentialBackoff: true);
 
 		// Assert
 		response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -95,11 +94,9 @@ public sealed class RetryHandlerTests
 	{
 		// Arrange
 		var inner = new FakeInnerHandler(HttpStatusCode.InternalServerError);
-		using var handler = new RetryHandler(BuildOptions(maxRetryAttempts: 2)) { InnerHandler = inner };
-		using var client = new HttpClient(handler);
 
 		// Act
-		var response = await client.SendAsync(NewRequest(), CancellationToken.None);
+		var response = await SendWithRetryAsync(inner, 2, useExponentialBackoff: true);
 
 		// Assert
 		response.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
@@ -111,11 +108,9 @@ public sealed class RetryHandlerTests
 	{
 		// Arrange
 		var inner = new FakeInnerHandler(HttpStatusCode.BadRequest);
-		using var handler = new RetryHandler(BuildOptions(maxRetryAttempts: 3)) { InnerHandler = inner };
-		using var client = new HttpClient(handler);
 
 		// Act
-		var response = await client.SendAsync(NewRequest(), CancellationToken.None);
+		var response = await SendWithRetryAsync(inner, 3, useExponentialBackoff: true);
 
 		// Assert
 		response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -130,11 +125,9 @@ public sealed class RetryHandlerTests
 		{
 			FailFirstWith = new HttpRequestException("network down")
 		};
-		using var handler = new RetryHandler(BuildOptions(maxRetryAttempts: 3)) { InnerHandler = inner };
-		using var client = new HttpClient(handler);
 
 		// Act
-		var response = await client.SendAsync(NewRequest(), CancellationToken.None);
+		var response = await SendWithRetryAsync(inner, 3, useExponentialBackoff: true);
 
 		// Assert
 		response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -149,11 +142,9 @@ public sealed class RetryHandlerTests
 		{
 			FailFirstWith = new TaskCanceledException("timed out")
 		};
-		using var handler = new RetryHandler(BuildOptions(maxRetryAttempts: 2)) { InnerHandler = inner };
-		using var client = new HttpClient(handler);
 
 		// Act
-		var response = await client.SendAsync(NewRequest(), CancellationToken.None);
+		var response = await SendWithRetryAsync(inner, 2, useExponentialBackoff: true);
 
 		// Assert
 		response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -168,11 +159,9 @@ public sealed class RetryHandlerTests
 		{
 			FailFirstWith = new InvalidOperationException("not retryable")
 		};
-		using var handler = new RetryHandler(BuildOptions(maxRetryAttempts: 3)) { InnerHandler = inner };
-		using var client = new HttpClient(handler);
 
 		// Act
-		var act = async () => await client.SendAsync(NewRequest(), CancellationToken.None);
+		var act = async () => await SendWithRetryAsync(inner, 3, useExponentialBackoff: true);
 
 		// Assert
 		await act.Should().ThrowAsync<InvalidOperationException>();
@@ -189,11 +178,10 @@ public sealed class RetryHandlerTests
 		{
 			FailFirstWith = new TaskCanceledException("cancelled")
 		};
-		using var handler = new RetryHandler(BuildOptions(maxRetryAttempts: 2)) { InnerHandler = inner };
-		using var client = new HttpClient(handler);
 
 		// Act
-		var act = async () => await client.SendAsync(NewRequest(), cts.Token);
+		var act = async () => await SendWithRetryAsync(
+			inner, 2, useExponentialBackoff: true, token: cts.Token);
 
 		// Assert
 		await act.Should().ThrowAsync<TaskCanceledException>();
@@ -206,12 +194,9 @@ public sealed class RetryHandlerTests
 		// Arrange
 		var inner = new FakeInnerHandler(
 			[HttpStatusCode.InternalServerError, HttpStatusCode.OK]);
-		using var handler = new RetryHandler(
-			BuildOptions(maxRetryAttempts: 2, useExponentialBackoff: false)) { InnerHandler = inner };
-		using var client = new HttpClient(handler);
 
 		// Act
-		var response = await client.SendAsync(NewRequest(), CancellationToken.None);
+		var response = await SendWithRetryAsync(inner, 2, useExponentialBackoff: false);
 
 		// Assert
 		response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -223,15 +208,10 @@ public sealed class RetryHandlerTests
 		// Arrange
 		var inner = new FakeInnerHandler(
 			[HttpStatusCode.InternalServerError, HttpStatusCode.OK]);
-		using var handler = new RetryHandler(
-			BuildOptions(
-				maxRetryAttempts: 2,
-				useExponentialBackoff: true,
-				maxRetryDelay: TimeSpan.FromMilliseconds(1))) { InnerHandler = inner };
-		using var client = new HttpClient(handler);
 
 		// Act
-		var response = await client.SendAsync(NewRequest(), CancellationToken.None);
+		var response = await SendWithRetryAsync(
+			inner, 2, useExponentialBackoff: true, maxRetryDelay: TimeSpan.FromMilliseconds(1));
 
 		// Assert
 		response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -244,12 +224,9 @@ public sealed class RetryHandlerTests
 		var logger = new CaptureLogger();
 		var inner = new FakeInnerHandler(
 			[HttpStatusCode.InternalServerError, HttpStatusCode.OK]);
-		using var handler = new RetryHandler(
-			BuildOptions(maxRetryAttempts: 3, logger: logger)) { InnerHandler = inner };
-		using var client = new HttpClient(handler);
 
 		// Act
-		var response = await client.SendAsync(NewRequest(), CancellationToken.None);
+		var response = await SendWithRetryAsync(inner, 3, useExponentialBackoff: true, logger: logger);
 
 		// Assert
 		response.StatusCode.Should().Be(HttpStatusCode.OK);
