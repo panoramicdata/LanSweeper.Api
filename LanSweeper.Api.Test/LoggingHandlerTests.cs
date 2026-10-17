@@ -17,6 +17,21 @@ public sealed class LoggingHandlerTests
 		return request;
 	}
 
+	private static HttpRequestMessage BuildGetRequest()
+	{
+		return new HttpRequestMessage(HttpMethod.Get, Url);
+	}
+
+	private static async Task SendAsync(HttpClient client, HttpRequestMessage request)
+	{
+		await client.SendAsync(request, CancellationToken.None);
+	}
+
+	private static async Task<HttpResponseMessage> SendAsyncWithResponse(HttpClient client, HttpRequestMessage request)
+	{
+		return await client.SendAsync(request, CancellationToken.None);
+	}
+
 	private sealed class TestSetup : IDisposable
 	{
 		public CaptureLogger Logger { get; } = new();
@@ -52,9 +67,7 @@ public sealed class LoggingHandlerTests
 	{
 		using var setup = new TestSetup();
 
-		var response = await setup.Client.SendAsync(
-			BuildPostRequest("{\"query\":\"{ hello }\"}"),
-			CancellationToken.None);
+		var response = await SendAsyncWithResponse(setup.Client, BuildPostRequest("{\"query\":\"{ hello }\"}"));
 
 		response.StatusCode.Should().Be(HttpStatusCode.OK);
 		setup.Logger.Messages.Should().Contain(m => m.Contains("HTTP Request"));
@@ -66,9 +79,7 @@ public sealed class LoggingHandlerTests
 	{
 		using var setup = new TestSetup();
 
-		await setup.Client.SendAsync(
-			BuildPostRequest("Authorization: Bearer secret-token-123"),
-			CancellationToken.None);
+		await SendAsync(setup.Client, BuildPostRequest("Authorization: Bearer secret-token-123"));
 
 		setup.Logger.Messages.Should().Contain(m => m.Contains("***MASKED***"));
 		setup.Logger.Messages.Should().NotContain(m => m.Contains("secret-token-123"));
@@ -79,9 +90,7 @@ public sealed class LoggingHandlerTests
 	{
 		using var setup = new TestSetup();
 
-		await setup.Client.SendAsync(
-			BuildPostRequest("Authorization: Token my-token-456"),
-			CancellationToken.None);
+		await SendAsync(setup.Client, BuildPostRequest("Authorization: Token my-token-456"));
 
 		setup.Logger.Messages.Should().Contain(m => m.Contains("my-token-456"));
 	}
@@ -91,9 +100,7 @@ public sealed class LoggingHandlerTests
 	{
 		using var setup = new TestSetup();
 
-		await setup.Client.SendAsync(
-			new HttpRequestMessage(HttpMethod.Get, Url),
-			CancellationToken.None);
+		await SendAsync(setup.Client, BuildGetRequest());
 
 		setup.Logger.Messages.Should().Contain(m => m.Contains("HTTP Request"));
 		setup.Logger.Messages.Should().NotContain(m => m.Contains("Request Content"));
@@ -104,9 +111,7 @@ public sealed class LoggingHandlerTests
 	{
 		using var setup = new TestSetup(enableRequestLogging: false);
 
-		await setup.Client.SendAsync(
-			BuildPostRequest("{\"query\":\"{ hello }\"}"),
-			CancellationToken.None);
+		await SendAsync(setup.Client, BuildPostRequest("{\"query\":\"{ hello }\"}"));
 
 		setup.Logger.Messages.Should().NotContain(m => m.Contains("HTTP Request"));
 		setup.Logger.Messages.Should().Contain(m => m.Contains("HTTP Response"));
@@ -117,9 +122,7 @@ public sealed class LoggingHandlerTests
 	{
 		using var setup = new TestSetup(enableResponseLogging: false);
 
-		await setup.Client.SendAsync(
-			new HttpRequestMessage(HttpMethod.Get, Url),
-			CancellationToken.None);
+		await SendAsync(setup.Client, BuildGetRequest());
 
 		setup.Logger.Messages.Should().Contain(m => m.Contains("HTTP Request"));
 		setup.Logger.Messages.Should().NotContain(m => m.Contains("HTTP Response"));
@@ -130,9 +133,7 @@ public sealed class LoggingHandlerTests
 	{
 		using var setup = new TestSetup();
 
-		await setup.Client.SendAsync(
-			new HttpRequestMessage(HttpMethod.Get, Url),
-			CancellationToken.None);
+		await SendAsync(setup.Client, BuildGetRequest());
 
 		setup.Logger.Messages.Should().Contain(m => m.Contains("HTTP Response"));
 	}
@@ -142,9 +143,7 @@ public sealed class LoggingHandlerTests
 	{
 		using var setup = new TestSetup(enableRequestLogging: false, enableResponseLogging: false);
 
-		var response = await setup.Client.SendAsync(
-			new HttpRequestMessage(HttpMethod.Get, Url),
-			CancellationToken.None);
+		var response = await SendAsyncWithResponse(setup.Client, BuildGetRequest());
 
 		response.StatusCode.Should().Be(HttpStatusCode.OK);
 		setup.Inner.Attempts.Should().Be(1);
