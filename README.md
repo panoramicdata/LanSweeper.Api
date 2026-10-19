@@ -25,7 +25,7 @@ A comprehensive .NET library for the LanSweeper Data API (GraphQL), providing ea
 Install the package via NuGet:
 
 ```bash
-dotnet add package LanSweeper.Api
+dotnet add package PanoramicData.LanSweeper.Api
 ```
 
 ### Basic Usage
