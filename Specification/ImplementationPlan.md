@@ -892,7 +892,7 @@ public sealed class SitesApiTests : IntegrationTestBase
 ### 2. Install the Package
 
 ```bash
-dotnet add package LanSweeper.Api
+dotnet add package PanoramicData.LanSweeper.Api
 ```
 
 ### 3. Basic Usage

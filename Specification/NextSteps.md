@@ -132,7 +132,7 @@ dotnet test --filter "GetByIdAsync_WithInvalidId" -- --verbosity detailed
 - [ ] Test local package build:
 ```bash
 dotnet pack -c Release
-dotnet nuget push bin/Release/LanSweeper.Api.1.0.0.nupkg --source local-test
+dotnet nuget push bin/Release/PanoramicData.LanSweeper.Api.1.0.0.nupkg --source local-test
 ```
 
 ---
@@ -183,7 +183,7 @@ git push origin v1.0.0
 ```bash
 dotnet new console -o TestInstall
 cd TestInstall
-dotnet add package LanSweeper.Api
+dotnet add package PanoramicData.LanSweeper.Api
 dotnet build
 ```
 

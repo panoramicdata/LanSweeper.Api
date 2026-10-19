@@ -1,6 +1,6 @@
 # Publishing LanSweeper.Api to NuGet
 
-This guide explains how to publish a new version of the LanSweeper.Api package to NuGet.org.
+This guide explains how to publish a new version of the PanoramicData.LanSweeper.Api package to NuGet.org.
 
 ## Prerequisites
 
@@ -17,7 +17,7 @@ This guide explains how to publish a new version of the LanSweeper.Api package t
 2. Click "Create"
 3. Set the following:
    - **Key Name**: `LanSweeper.Api Publish`
-   - **Glob Pattern**: `LanSweeper.Api`
+   - **Glob Pattern**: `PanoramicData.LanSweeper.Api`
    - **Select Scopes**: Check "Push"
 4. Copy the generated API key
 5. Create a file named `nuget-key.txt` in the solution root
@@ -116,7 +116,7 @@ The version aligns with LanSweeper's API version (currently 12.5) so users know 
 
 ### 1. Verify Package
 
-Visit: https://www.nuget.org/packages/LanSweeper.Api/
+Visit: https://www.nuget.org/packages/PanoramicData.LanSweeper.Api/
 
 It may take 5-10 minutes to appear in search results and package explorer.
 
@@ -128,7 +128,7 @@ dotnet new console -o TestInstall
 cd TestInstall
 
 # Install package
-dotnet add package LanSweeper.Api
+dotnet add package PanoramicData.LanSweeper.Api
 
 # Verify it builds
 dotnet build
@@ -180,7 +180,7 @@ Fix failing tests before publishing:
 dotnet test --configuration Release
 ```
 
-### Error: "Package with id 'LanSweeper.Api' and version 'X.X.X' already exists"
+### Error: "Package with id 'PanoramicData.LanSweeper.Api' and version 'X.X.X' already exists"
 
 This version has already been published. You need to:
 1. Make a new commit (this increments git height)
@@ -228,7 +228,7 @@ dotnet pack LanSweeper.Api/LanSweeper.Api.csproj `
     --output ./artifacts
 
 # Publish
-dotnet nuget push ./artifacts/LanSweeper.Api.*.nupkg `
+dotnet nuget push ./artifacts/PanoramicData.LanSweeper.Api.*.nupkg `
     --api-key YOUR-API-KEY-HERE `
     --source https://api.nuget.org/v3/index.json
 
