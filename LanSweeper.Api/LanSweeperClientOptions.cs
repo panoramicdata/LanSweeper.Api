@@ -41,6 +41,11 @@ public sealed class LanSweeperClientOptions
 	public TimeSpan MaxRetryDelay { get; init; } = TimeSpan.FromSeconds(30);
 
 	/// <summary>
+	/// Refuse every request that is not a GraphQL query (default: false)
+	/// </summary>
+	public bool IsReadOnly { get; set; }
+
+	/// <summary>
 	/// Logger instance for diagnostic output
 	/// </summary>
 	public ILogger? Logger { get; init; }

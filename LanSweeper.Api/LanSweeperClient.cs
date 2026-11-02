@@ -58,7 +58,7 @@ public sealed class LanSweeperClient : ILanSweeperClient
 	private DelegatingHandler CreateHandlerChain()
 	{
 		// Build the handler chain from innermost to outermost
-		// Order: HttpClientHandler -> Auth -> Retry -> Logging -> Error
+		// Order: HttpClientHandler -> Auth -> Retry -> Logging -> Error -> ReadOnly
 
 		var innerHandler = new HttpClientHandler();
 
@@ -84,6 +84,11 @@ public sealed class LanSweeperClient : ILanSweeperClient
 		}
 
 		chain = new ErrorHandler(_options.Logger)
+		{
+			InnerHandler = chain
+		};
+
+		chain = new ReadOnlyHandler(_options)
 		{
 			InnerHandler = chain
 		};
