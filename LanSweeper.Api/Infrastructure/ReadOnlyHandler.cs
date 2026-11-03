@@ -84,13 +84,8 @@ internal sealed class ReadOnlyHandler(LanSweeperClientOptions options) : Delegat
 			}
 			else if (IsNameStart(c))
 			{
-				var start = i;
-				while (i < document.Length && IsNameChar(document[i]))
-				{
-					i++;
-				}
-
-				if (depth == 0 && IsWriteKeyword(document.AsSpan(start, i - start)))
+				i = ReadName(document, i, depth, out var isWrite);
+				if (isWrite)
 				{
 					return true;
 				}
@@ -103,6 +98,18 @@ internal sealed class ReadOnlyHandler(LanSweeperClientOptions options) : Delegat
 		}
 
 		return false;
+	}
+
+	private static int ReadName(string document, int start, int depth, out bool isWrite)
+	{
+		var end = start;
+		while (end < document.Length && IsNameChar(document[end]))
+		{
+			end++;
+		}
+
+		isWrite = depth == 0 && IsWriteKeyword(document.AsSpan(start, end - start));
+		return end;
 	}
 
 	private static bool IsWriteKeyword(ReadOnlySpan<char> name)
