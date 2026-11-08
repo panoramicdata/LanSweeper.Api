@@ -1,6 +1,7 @@
 namespace LanSweeper.Api.Infrastructure;
 
-internal sealed partial class ReadOnlyHandler
+/// <summary>Finds write operations in a GraphQL document without parsing it fully.</summary>
+internal static class GraphQlOperationScanner
 {
 	/// <summary>
 	/// True when a top-level operation of the document is a mutation or subscription.

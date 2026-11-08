@@ -7,7 +7,7 @@ namespace LanSweeper.Api.Infrastructure;
 /// Every request is a POST of a GraphQL document, so the document is inspected: anything that is not provably
 /// a query (a mutation, a subscription, or a body that cannot be read) is refused. The option is read on every request.
 /// </summary>
-internal sealed partial class ReadOnlyHandler(LanSweeperClientOptions options) : DelegatingHandler
+internal sealed class ReadOnlyHandler(LanSweeperClientOptions options) : DelegatingHandler
 {
 	protected override async Task<HttpResponseMessage> SendAsync(
 		HttpRequestMessage request,
@@ -61,5 +61,5 @@ internal sealed partial class ReadOnlyHandler(LanSweeperClientOptions options) :
 	private static bool ObjectIsQueryOnly(JsonElement request)
 		=> request.TryGetProperty("query", out var query)
 			&& query.ValueKind == JsonValueKind.String
-			&& !HasWriteOperation(query.GetString()!);
+			&& !GraphQlOperationScanner.HasWriteOperation(query.GetString()!);
 }

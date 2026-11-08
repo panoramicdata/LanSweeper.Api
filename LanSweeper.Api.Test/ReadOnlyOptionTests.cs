@@ -94,7 +94,7 @@ public sealed class ReadOnlyOptionTests
 	[InlineData("subscription { a }", true)]
 	[InlineData("  \n mutation M { a }", true)]
 	public void HasWriteOperation_ClassifiesDocuments(string document, bool expected)
-		=> ReadOnlyHandler.HasWriteOperation(document).Should().Be(expected);
+		=> GraphQlOperationScanner.HasWriteOperation(document).Should().Be(expected);
 
 	[Fact]
 	public async Task ReportsMutation_IsRefused_ThroughTheClient_WhenIsReadOnly()
