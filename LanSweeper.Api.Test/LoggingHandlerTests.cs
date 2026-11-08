@@ -62,16 +62,19 @@ public sealed class LoggingHandlerTests
 		}
 	}
 
-	[Fact]
-	public async Task SendAsync_WithBothLoggingEnabled_LogsRequestAndResponse()
+	[Theory]
+	[InlineData(true, true)]
+	[InlineData(false, true)]
+	[InlineData(true, false)]
+	public async Task SendAsync_LogsOnlyWhatIsEnabled(bool enableRequestLogging, bool enableResponseLogging)
 	{
-		using var setup = new TestSetup();
+		using var setup = new TestSetup(enableRequestLogging, enableResponseLogging);
 
 		var response = await SendAsyncWithResponse(setup.Client, BuildPostRequest("{\"query\":\"{ hello }\"}"));
 
 		response.StatusCode.Should().Be(HttpStatusCode.OK);
-		setup.Logger.Messages.Should().Contain(m => m.Contains("HTTP Request"));
-		setup.Logger.Messages.Should().Contain(m => m.Contains("HTTP Response"));
+		setup.Logger.Messages.Any(m => m.Contains("HTTP Request")).Should().Be(enableRequestLogging);
+		setup.Logger.Messages.Any(m => m.Contains("HTTP Response")).Should().Be(enableResponseLogging);
 	}
 
 	[Fact]
@@ -104,28 +107,6 @@ public sealed class LoggingHandlerTests
 
 		setup.Logger.Messages.Should().Contain(m => m.Contains("HTTP Request"));
 		setup.Logger.Messages.Should().NotContain(m => m.Contains("Request Content"));
-	}
-
-	[Fact]
-	public async Task SendAsync_WhenRequestLoggingDisabled_SkipsRequestLogging()
-	{
-		using var setup = new TestSetup(enableRequestLogging: false);
-
-		await SendAsync(setup.Client, BuildPostRequest("{\"query\":\"{ hello }\"}"));
-
-		setup.Logger.Messages.Should().NotContain(m => m.Contains("HTTP Request"));
-		setup.Logger.Messages.Should().Contain(m => m.Contains("HTTP Response"));
-	}
-
-	[Fact]
-	public async Task SendAsync_WhenResponseLoggingDisabled_SkipsResponseLogging()
-	{
-		using var setup = new TestSetup(enableResponseLogging: false);
-
-		await SendAsync(setup.Client, BuildGetRequest());
-
-		setup.Logger.Messages.Should().Contain(m => m.Contains("HTTP Request"));
-		setup.Logger.Messages.Should().NotContain(m => m.Contains("HTTP Response"));
 	}
 
 	[Fact]
