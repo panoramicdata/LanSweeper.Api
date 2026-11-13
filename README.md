@@ -6,11 +6,13 @@
 
 A comprehensive .NET library for the LanSweeper Data API (GraphQL), providing easy access to LanSweeper's inventory and asset management data.
 
+Supports .NET 11.0.
+
 ## Features
 
 - **Full GraphQL Support**: Complete access to LanSweeper's GraphQL Data API
 - **Type-Safe**: Strongly typed C# models for all API responses
-- **Modern .NET**: Built for .NET 9 with modern C# patterns
+- **Modern .NET**: Built for .NET 11.0 with modern C# patterns
 - **Authentication**: Seamless Personal Access Token (PAT) authentication
 - **Error Handling**: Comprehensive error handling and custom exceptions
 - **Async/Await**: Full async support for non-blocking operations
@@ -109,7 +111,7 @@ var result = await client.Data.Reports.ExecuteQueryAsync<T>(query, variables);
 
 ## Requirements
 
-- .NET 9.0 or later
+- .NET 11.0 or later
 - Valid LanSweeper account with API access
 - Personal Access Token
 

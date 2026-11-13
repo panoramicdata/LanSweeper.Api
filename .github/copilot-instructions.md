@@ -4,7 +4,7 @@
 LanSweeper.Api is a comprehensive .NET library for the LanSweeper Data API (GraphQL), providing easy access to LanSweeper's inventory and asset management data.
 
 ## Key Technologies
-- **Target Framework**: .NET 9
+- **Target Framework**: .NET 11.0
 - **API Protocol**: GraphQL (not REST)
 - **GraphQL Client**: GraphQL.Client library
 - **Authentication**: Personal Access Token (Bearer token)
