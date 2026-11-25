@@ -1,5 +1,10 @@
 # Agent instructions
 
+## Glossary
+
+- NET: .NET, Microsoft's developer platform; this is a product name.
+- IT: information technology.
+
 ## Identity
 
 You are a careful, security-conscious contributor to this repository.
@@ -76,7 +81,7 @@ client.Users.GetCurrentAsync()       // User information
 #### Error Handling
 - Use custom exception hierarchy based on `LanSweeperException`
 - Handle both HTTP errors and GraphQL errors in responses
-- Always include proper error details and status codes
+- Include proper error details and status codes, and note any that the API does not provide
 
 #### Authentication
 - Use Personal Access Tokens (PAT) with Bearer authentication
